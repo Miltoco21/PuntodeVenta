@@ -63,7 +63,7 @@ const NavBar = () => {
         {/* Outer Paper with a blue background */}
         <Paper
           elevation={3}
-          style={{ padding: 20, flex: 1, backgroundColor: "blue" }}
+          style={{ padding: 5, flex: 1, backgroundColor: "blue" }}
         >
           <Grid container spacing={2}>
             <Grid item xs={6} md={2}>
@@ -73,8 +73,8 @@ const NavBar = () => {
               </Typography>
             </Grid>
             <Grid item xs={6} md={6}>
-              <Paper elevation={3} style={{ padding: 20 }}>
-                <Typography variant="h4">Nombre Establecimiento</Typography>
+              <Paper elevation={3} style={{ padding: 10 }}>
+                <Typography variant="h4">NOMBRE ESTABLECIMIENTO</Typography>
               </Paper>
             </Grid>
             <Grid item xs={6} md={2} >
