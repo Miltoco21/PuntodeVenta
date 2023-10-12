@@ -22,7 +22,7 @@ const Home = () => {
         <CssBaseline />
 
         <Grid container spacing={1}>
-          {/* Navbar */}
+         
           <Grid item xs={12}>
             <NavBar />
           </Grid>
