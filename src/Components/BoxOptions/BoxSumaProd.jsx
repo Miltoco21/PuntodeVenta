@@ -55,7 +55,7 @@ const BoxSumaProd = () => {
   return (
     <Paper
       elevation={13}
-      item
+    
       lg={11}
       sx={{
         display: "flex",
@@ -136,7 +136,7 @@ const BoxSumaProd = () => {
                   </Button>
                 </div>
               </Grid>
-              <Grid item fullWidth xs={3} lg={4}>
+              <Grid item  xs={3} lg={4}>
                 <div className="product-box">
                   <TextField focused placeholder="Ingrese código" />
                 </div>

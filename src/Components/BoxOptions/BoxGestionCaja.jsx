@@ -146,7 +146,7 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">Suspender Venta</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2} s>
+        <Grid item xs={6} sm={6} md={4} lg={3} xl={2} >
           <Button
             sx={{
               width: "100px",
