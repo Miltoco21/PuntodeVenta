@@ -106,7 +106,7 @@ const BoxSumaProd = () => {
                     justifyContent:"space-around",
                     alignItems: "center",
                   }}>
-                  <Typography>{count}</Typography>
+                  <Typography >{count}</Typography>
                 </div>
               </Grid>
               <Grid item xs={3} lg={2}>
