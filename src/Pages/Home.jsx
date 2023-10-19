@@ -12,7 +12,7 @@ import BoxDatosCaja from "../Components/BoxOptions/BoxDatosCaja";
 import BoxGestionCaja from "../Components/BoxOptions/BoxGestionCaja";
 import BoxBotonesSecundarios from "../Components/BoxOptions/BoxBotonesSecundarios";
 import BoxSumaProd from "../Components/BoxOptions/BoxSumaProd";
-import Navbar from '../Components/Navbar/Navbar.jsx';
+import Navbar from '../Components/Navbar/Navbar';
 
 
 
