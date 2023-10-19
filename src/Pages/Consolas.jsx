@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, Grid, Container, Paper } from '@mui/material';
 
-import Navbar from "../Components/Navbar/Navbar";
+import Navbar from '../Components/Navbar/Navbar';
 
 const LoginScreen = () => {
   const [sellerCode, setSellerCode] = useState('');

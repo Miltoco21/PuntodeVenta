@@ -12,7 +12,7 @@ import BoxDatosCaja from "../Components/BoxOptions/BoxDatosCaja";
 import BoxGestionCaja from "../Components/BoxOptions/BoxGestionCaja";
 import BoxBotonesSecundarios from "../Components/BoxOptions/BoxBotonesSecundarios";
 import BoxSumaProd from "../Components/BoxOptions/BoxSumaProd";
-import NavBar from "../Components/Navbar/Navbar"
+import Navbar from '../Components/Navbar/Navbar';
 
 
 
@@ -25,7 +25,7 @@ const Home = () => {
         <Grid container spacing={1}>
          
           <Grid item xs={12}sx={{ height:"66px" }}>
-            <NavBar  />
+            <Navbar  />
           </Grid>
 
           {/* Main Content */}
