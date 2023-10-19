@@ -6,12 +6,13 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import { Grid } from "@mui/material";
 
-import NavBar from "../Components/Navbar/Navbar";
+
 import BoxVendedor from "../Components/BoxOptions/BoxVendedor";
 import BoxDatosCaja from "../Components/BoxOptions/BoxDatosCaja";
 import BoxGestionCaja from "../Components/BoxOptions/BoxGestionCaja";
 import BoxBotonesSecundarios from "../Components/BoxOptions/BoxBotonesSecundarios";
 import BoxSumaProd from "../Components/BoxOptions/BoxSumaProd";
+import NavBar from "../Components/Navbar/Navbar"
 
 
 

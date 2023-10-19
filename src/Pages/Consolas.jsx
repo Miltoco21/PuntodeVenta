@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, Grid, Container, Paper } from '@mui/material';
 
-import NavBar from "../Components/Navbar/Navbar";
+import Navbar from "../Components/Navbar/Navbar";
 
 const LoginScreen = () => {
   const [sellerCode, setSellerCode] = useState('');
@@ -48,7 +48,7 @@ const LoginScreen = () => {
 
   return (
     <Container>
-      <NavBar/>
+      <Navbar/>
       <Grid container justifyContent="center" style={{ height: '100vh', alignItems: 'center' }}>
         <Grid item xs={6}>
          
