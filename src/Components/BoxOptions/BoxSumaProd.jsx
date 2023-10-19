@@ -30,32 +30,46 @@ import {
 } from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import TecladoPLU from "../Teclados/TecladoPLU";
 
 const BoxSumaProd = () => {
   const [count, setCount] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [plu, setPlu] = useState("");
 
   const increment = () => {
     setCount(count + 1);
+  };
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   const decrement = () => {
     setCount(count - 1);
   };
-  const [plu, setPlu] = useState("");
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
 
   const handlePluChange = (event) => {
     setPlu(event.target.value);
   };
 
-  const handlePluSubmit = () => {
-    // You can handle the PLU submission here, e.g., send it to the server.
-    console.log("PLU submitted:", plu);
+  const handlePluSubmit = (pluValue) => {
+    setPlu(pluValue);
+    handleClose;
   };
 
   return (
     <Paper
       elevation={13}
-    
       lg={11}
       sx={{
         display: "flex",
@@ -66,7 +80,6 @@ const BoxSumaProd = () => {
         marginLeft: "5px",
         marginTop: "-340px",
         justifyContent: "center",
-        
       }}
     >
       <Grid container spacing={1}>
@@ -83,7 +96,9 @@ const BoxSumaProd = () => {
             elevation={21}
             className="sales-display"
           >
-            {count}
+            Cantidad:{count} - Plu:
+            {plu} 
+             - Código:{searchTerm}
           </Paper>
         </Grid>
         <Grid item xs={4} lg={12}>
@@ -95,18 +110,22 @@ const BoxSumaProd = () => {
               alignItems: "center",
               padding: "5px",
               margin: "5px",
-              marginTop:"-6px"
+              marginTop: "-6px",
             }}
           >
             <Grid container spacing={1}>
               <Grid item xs={3} lg={1}>
-                <div className="product-box"  style={{
+                <div
+                  className="product-box"
+                  style={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent:"space-around",
+                    justifyContent: "space-around",
                     alignItems: "center",
-                  }}>
-                  <Typography >{count}</Typography>
+                    padding: "15px",
+                  }}
+                >
+                  <Typography>{count} </Typography>
                 </div>
               </Grid>
               <Grid item xs={3} lg={2}>
@@ -136,19 +155,21 @@ const BoxSumaProd = () => {
                   </Button>
                 </div>
               </Grid>
-              <Grid item  xs={3} lg={4}>
+              <Grid item xs={3} lg={7}>
                 <div className="product-box">
-                  <TextField focused placeholder="Ingrese código" />
+                  <TextField
+                    fullWidth
+                    focused
+                    placeholder="Ingresa Código"
+                    label="Buscar Código..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                  ></TextField>
                 </div>
               </Grid>
-              <Grid item xs={3} lg={4}>
+              <Grid item xs={3} lg={2}>
                 <div style={{ display: "flex" }} className="product-box">
-                  <TextField placeholder=" PLU..." />
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={handlePluSubmit}
-                  >
+                  <Button size="large" variant="outlined" onClick={handleOpen}>
                     PLU
                   </Button>
                 </div>
@@ -159,13 +180,13 @@ const BoxSumaProd = () => {
 
         <Grid item xs={12}>
           <Paper
-          elevation={14}
+            elevation={14}
             sx={{
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
               margin: "5px",
-              marginTop:"-6px"
+              marginTop: "-6px",
             }}
           >
             {/* Sales Table */}
@@ -193,6 +214,16 @@ const BoxSumaProd = () => {
             </TableContainer>
           </Paper>
         </Grid>
+        <Dialog sx={{ width: "500px" }} open={open} onClose={handleClose}>
+          <DialogContent>
+            <TecladoPLU
+              plu={plu}
+              setPlu={setPlu}
+              onClose={handleClose}
+              onPluSubmit={handlePluSubmit}
+            />
+          </DialogContent>
+        </Dialog>
       </Grid>
     </Paper>
   );

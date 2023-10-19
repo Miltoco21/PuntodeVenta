@@ -55,7 +55,7 @@ const NavBar = () => {
       <div
         style={{
           width: "100vw",
-          height: "10vh",
+          height: "20px",
           display: "flex",
           flexDirection: "column",
         }}
@@ -63,17 +63,17 @@ const NavBar = () => {
         {/* Outer Paper with a blue background */}
         <Paper
           elevation={3}
-          style={{ padding: 5, flex: 1, backgroundColor: "blue" }}
+          style={{ flex: 1, backgroundColor: "blue" }}
         >
           <Grid container spacing={2}>
             <Grid item xs={6} md={2}>
               <Typography variant="h4" color={"white"}
-              sx={{padding: 2}}>
+              sx={{padding: 1}}>
                 EasyPOS
               </Typography>
             </Grid>
-            <Grid item xs={6} md={6}>
-              <Paper elevation={3} style={{ padding: 10 }}>
+            <Grid item xs={6} md={6} >
+              <Paper elevation={3} style={{ padding:"2px", marginTop:"8px"}}>
                 <Typography variant="h4">NOMBRE ESTABLECIMIENTO</Typography>
               </Paper>
             </Grid>
