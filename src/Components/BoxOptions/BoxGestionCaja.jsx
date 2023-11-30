@@ -2,13 +2,14 @@
 /* eslint-disable no-unused-vars */
 
 import React, { useState } from "react";
-import { Box, Paper, Grid, Typography, Button } from "@mui/material";
+import { Box, Paper, Grid, Typography, Button,DialogContent,Dialog } from "@mui/material";
 import { styled } from "@mui/system";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import EditIcon from "@mui/icons-material/Edit";
 import LockPersonIcon from "@mui/icons-material/LockPerson";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import CoffeeIcon from "@mui/icons-material/Coffee";
+import BotonesCategorias from "./BotonesCategorias";
 
 // const ButtonS = styled(Button)({
 //   width: "100%",
@@ -34,6 +35,14 @@ import CoffeeIcon from "@mui/icons-material/Coffee";
 
 const BoxGestionCaja = () => {
   const [value, setValue] = useState(0);
+
+  const [openCategoria, setOpenCategoria] = useState(false);
+  const handleOpenCategoria = () => {
+    setOpenCategoria(true);
+  };
+  const handleCloseCategoria = () => {
+    setOpenCategoria(false);
+  };
 
   const handleNavigationChange = (event, newValue) => {
     console.log(`Button ${newValue} clicked`);
@@ -105,7 +114,7 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            onClick={() => handleNavigationChange(null, 2)}
+            onClick={ handleOpenCategoria}
           >
             {/* <LockPersonIcon /> */}
             <Typography variant="h7">Familias</Typography>
@@ -113,6 +122,7 @@ const BoxGestionCaja = () => {
         </Grid>
         <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
           <Button
+           
             sx={{
               width: "100px",
               height: "100px",
@@ -123,6 +133,7 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
+            
             onClick={() => handleNavigationChange(null, 3)}
           >
             {/* <PowerSettingsNewIcon /> */}
@@ -311,7 +322,18 @@ const BoxGestionCaja = () => {
           </Button>
         </Grid>
       </Grid>
+      <Dialog sx={{ width: "1300px" }}open={openCategoria} onClose={handleCloseCategoria}>
+          <DialogContent>
+            <BotonesCategorias
+            
+              onClose={handleCloseCategoria}
+            
+            />
+          </DialogContent>
+        </Dialog>
     </Paper>
+
+    
   );
 };
 

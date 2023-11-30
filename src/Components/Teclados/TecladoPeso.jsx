@@ -4,45 +4,46 @@
 import React, { useState } from "react";
 import { Button, TextField, Grid, Container, Paper } from "@mui/material";
 
-const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
-  const [sellerCode, setSellerCode] = useState("");
+const TecladoPeso = ({onPesoSubmit,onClose}) => {
+  const [peso, setpeso] = useState("");
 
-  const [activeField, setActiveField] = useState("sellerCode");
+
+  const [activeField, setActiveField] = useState("peso");
 
   const handleFieldFocus = (field) => {
     setActiveField(field);
   };
 
   const handleNumberClick = (number) => {
-    if (activeField === "sellerCode") {
-      setSellerCode(sellerCode + number);
+    if (activeField === "peso") {
+      setpeso(peso + number);
     } else if (activeField === "code") {
       setCode(code + number);
     }
   };
 
   const handleDeleteOne = () => {
-    if (activeField === "sellerCode") {
-      setSellerCode(sellerCode.slice(0, -1));
+    if (activeField === "peso") {
+      setpeso(peso.slice(0, -1));
     } else if (activeField === "code") {
       setCode(code.slice(0, -1));
     }
   };
 
   const handleDeleteAll = () => {
-    if (activeField === "sellerCode") {
-      setSellerCode("");
+    if (activeField === "peso") {
+      setpeso("");
     } else if (activeField === "code") {
       setCode("");
     }
   };
 
   const handleEnter = () => {
-    onPluSubmit(sellerCode)
+    onPesoSubmit(peso)
     onClose(false)
    
   };
-  const handleClose = ()=>{
+  const handleClosePeso = ()=>{
     onClose(false)
   }
 
@@ -55,11 +56,11 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
             sx={{margin:"2px"}}>
               <Grid item xs={12} lg={11}>
                 <TextField
-                  label="Ingresa Plu "
+                  label="Ingresa Peso "
                   variant="outlined"
                   fullWidth
-                  value={sellerCode}
-                  onFocus={() => handleFieldFocus("sellerCode")}
+                  value={peso}
+                  onFocus={() => handleFieldFocus("peso")}
                 />
               </Grid>
               {/* <Grid item xs={12}>
@@ -114,7 +115,7 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
                 sx={{margin:"5px"}}
                   variant="contained"
                   color="primary"
-                  onClick={handleClose}
+                  onClick={handleClosePeso}
                 >
                  Salir
                 </Button>
@@ -127,4 +128,4 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
   );
 };
 
-export default TecladoPLU;
+export default TecladoPeso;

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 import React from "react";
@@ -12,6 +13,7 @@ import BoxDatosCaja from "../Components/BoxOptions/BoxDatosCaja";
 import BoxGestionCaja from "../Components/BoxOptions/BoxGestionCaja";
 import BoxBotonesSecundarios from "../Components/BoxOptions/BoxBotonesSecundarios";
 import BoxSumaProd from "../Components/BoxOptions/BoxSumaProd";
+
 import Navbar from '../Components/Navbar/Navbar';
 
 
@@ -43,7 +45,7 @@ const Home = () => {
               {/* /////Half //// */}
               <Grid  item xs={6} >
                 {/* <BoxBotonesSecundarios/> */}
-                <BoxSumaProd/> {/* /////pantalla suma //// */}
+                <BoxSumaProd /> {/* /////pantalla suma //// */}
                 
               </Grid>
               

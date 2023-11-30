@@ -1,6 +1,8 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect,useContext } from "react";
 import {
   Paper,
   Container,
@@ -31,20 +33,33 @@ import {
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import TecladoPLU from "../Teclados/TecladoPLU";
+import TecladoPeso from "../Teclados/TecladoPeso";
+import {SelectedOptionsContext}from "../Context/SelectedOptionsProvider";
 
 const BoxSumaProd = () => {
+
+  const { selectedOptions } = useContext(SelectedOptionsContext);
+  const selectedProduct = selectedOptions.selectedProduct;
   const [count, setCount] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [plu, setPlu] = useState("");
+  const [peso, setPeso] = useState("");
 
   const increment = () => {
     setCount(count + 1);
   };
   const [open, setOpen] = useState(false);
 
+  const [openPeso, setOpenPeso] = useState(false);
+
   const handleOpen = () => {
     setOpen(true);
+  };
+  const handleOpenPeso = () => {
+    setOpenPeso(true);
+  }; const handleClosePeso = () => {
+    setOpenPeso(false);
   };
 
   const handleClose = () => {
@@ -64,6 +79,11 @@ const BoxSumaProd = () => {
 
   const handlePluSubmit = (pluValue) => {
     setPlu(pluValue);
+    handleClose;
+  };
+
+  const handlePesoSubmit = (pesoValue) => {
+    setPeso(pesoValue);
     handleClose;
   };
 
@@ -98,7 +118,10 @@ const BoxSumaProd = () => {
           >
             Cantidad:{count} - Plu:
             {plu} 
-             - Código:{searchTerm}
+             - Código:{searchTerm}-Peso:{peso}
+             Producto: {selectedOptions.selectedProduct && selectedOptions.selectedProduct.nombre}
+             idsubfamilia:{selectedOptions.subFamily && selectedOptions.subFamily.idSubFamilia} descripcion:{selectedOptions.subFamily && selectedOptions.subFamily.descripcion}
+
           </Paper>
         </Grid>
         <Grid item xs={4} lg={12}>
@@ -128,16 +151,18 @@ const BoxSumaProd = () => {
                   <Typography>{count} </Typography>
                 </div>
               </Grid>
-              <Grid item xs={3} lg={2}>
+              <Grid item xs={3} lg={1}>
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                    
                   }}
                   size="small"
                 >
                   <Button
+                    sx={{}}
                     size="small"
                     variant="outlined"
                     aria-label="reduce"
@@ -156,12 +181,12 @@ const BoxSumaProd = () => {
                 </div>
               </Grid>
               <Grid item xs={3} lg={7}>
-                <div className="product-box">
+                <div style={{ marginLeft: "10px" }}className="product-box">
                   <TextField
                     fullWidth
                     focused
                     placeholder="Ingresa Código"
-                    label="Buscar Código..."
+                    
                     value={searchTerm}
                     onChange={handleSearch}
                   ></TextField>
@@ -171,6 +196,9 @@ const BoxSumaProd = () => {
                 <div style={{ display: "flex" }} className="product-box">
                   <Button size="large" variant="outlined" onClick={handleOpen}>
                     PLU
+                  </Button>
+                  <Button size="large" variant="outlined" onClick={handleOpenPeso}>
+                    Peso
                   </Button>
                 </div>
               </Grid>
@@ -221,6 +249,16 @@ const BoxSumaProd = () => {
               setPlu={setPlu}
               onClose={handleClose}
               onPluSubmit={handlePluSubmit}
+            />
+          </DialogContent>
+        </Dialog>
+        <Dialog sx={{ width: "500px" }} open={openPeso} onClose={handleClosePeso}>
+          <DialogContent>
+            <TecladoPeso
+              peso={peso}
+              setPeso={setPeso}
+              onClose={handleClosePeso}
+              onPesoSubmit={handlePesoSubmit}
             />
           </DialogContent>
         </Dialog>
