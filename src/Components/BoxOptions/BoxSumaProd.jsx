@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
-
-import React, { useState, useEffect,useContext } from "react";
+import axios from "axios";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Paper,
   Container,
@@ -34,31 +35,67 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import TecladoPLU from "../Teclados/TecladoPLU";
 import TecladoPeso from "../Teclados/TecladoPeso";
-import {SelectedOptionsContext}from "../Context/SelectedOptionsProvider";
+import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 
 const BoxSumaProd = () => {
+  const {
+    selectedOptions,
+    salesData,
+    
+    addToSalesData,
+    removeFromSalesData,
+    incrementQuantity,
+    decrementQuantity,
+    // Other values/functions you need
+  } = useContext(SelectedOptionsContext);
 
-  const { selectedOptions } = useContext(SelectedOptionsContext);
-  const selectedProduct = selectedOptions.selectedProduct;
   const [count, setCount] = useState(1);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [productInfo, setProductInfo] = useState(null);
 
   const [plu, setPlu] = useState("");
   const [peso, setPeso] = useState("");
-
-  const increment = () => {
-    setCount(count + 1);
-  };
   const [open, setOpen] = useState(false);
+  const [grandTotal, setGrandTotal] = useState(0);
+
 
   const [openPeso, setOpenPeso] = useState(false);
+
+  const calculateTotalPrice = (quantity, price) => {
+    return quantity * price;
+  };
+  const calculateGrandTotal = () => {
+    return salesData.reduce((total, sale) => {
+      return total + calculateTotalPrice(sale.quantity, sale.precio);
+    }, 0);
+  };
+  useEffect(() => {
+    setGrandTotal(calculateGrandTotal());
+  }, [salesData]);
+
+  const handlePluSubmit = (productInfo) => {
+    setPlu(productInfo.idProducto); // Assuming idProducto is the product ID
+    handleClose(); // Close the PLU dialog
+    if (productInfo) {
+      addToSalesData(productInfo, selectedQuantity);
+    }
+  };
+
+  
+  
+  
+ 
 
   const handleOpen = () => {
     setOpen(true);
   };
+
   const handleOpenPeso = () => {
     setOpenPeso(true);
-  }; const handleClosePeso = () => {
+  };
+
+  const handleClosePeso = () => {
     setOpenPeso(false);
   };
 
@@ -66,26 +103,65 @@ const BoxSumaProd = () => {
     setOpen(false);
   };
 
-  const decrement = () => {
-    setCount(count - 1);
-  };
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    if (productInfo) {
+      addToSalesData(productInfo, selectedQuantity);
+    }
   };
 
   const handlePluChange = (event) => {
     setPlu(event.target.value);
   };
 
-  const handlePluSubmit = (pluValue) => {
-    setPlu(pluValue);
-    handleClose;
-  };
+ 
 
   const handlePesoSubmit = (pesoValue) => {
     setPeso(pesoValue);
-    handleClose;
+    handleClose();
+    if (productInfo) {
+      addToSalesData(productInfo, selectedQuantity);
+    }
   };
+
+  // Busqueda plu
+  useEffect(() => {
+    const fetchProductInfo = async () => {
+      try {
+        if (searchTerm) {
+          const response = await axios.get(
+            `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
+          );
+          console.log("API Response:", response.data);
+  
+          if (response.data.cantidadRegistros > 0) {
+            // If there are products, set the first one in the state
+            const newProductInfo = response.data.productos[0];
+            setProductInfo(newProductInfo);
+            // Remove the addToSalesData if you don't want to add this product to sales data immediately
+          } else {
+            // If no products found, clear the product information
+            setProductInfo(null);
+          }
+        } else {
+          setProductInfo(null);
+        }
+      } catch (error) {
+        console.error("Error fetching product information:", error);
+      }
+    };
+  
+    fetchProductInfo(); 
+  }, [searchTerm]);
+
+
+
+  const handlePluButtonClick = () => {
+    // Open the PLU dialog when the PLU button is clicked
+    handleOpen();
+  };
+
+ 
 
   return (
     <Paper
@@ -117,11 +193,28 @@ const BoxSumaProd = () => {
             className="sales-display"
           >
             Cantidad:{count} - Plu:
-            {plu} 
-             - Código:{searchTerm}-Peso:{peso}
-             Producto: {selectedOptions.selectedProduct && selectedOptions.selectedProduct.nombre}
-             idsubfamilia:{selectedOptions.subFamily && selectedOptions.subFamily.idSubFamilia} descripcion:{selectedOptions.subFamily && selectedOptions.subFamily.descripcion}
-
+            {searchTerm}- Código:{searchTerm}-Peso:{peso}
+            Producto:{" "}
+            {selectedOptions.selectedProduct &&
+              selectedOptions.selectedProduct.nombre}
+            descripcion:
+            {selectedOptions.subFamily && selectedOptions.subFamily.descripcion}
+            {productInfo && (
+              <>
+                <Typography>Nombre: {productInfo.nombre}</Typography>
+                <Typography>Categoría: {productInfo.categoria}</Typography>
+                <Typography>
+                  Subcategoría: {productInfo.subCategoria}
+                </Typography>
+                {/* Check if precioVenta exists before accessing it */}
+                {productInfo.precioVenta && (
+                  <Typography>
+                    Precio de Venta: {productInfo.precioVenta}
+                  </Typography>
+                )}
+                {/* Add more product information fields as needed */}
+              </>
+            )}
           </Paper>
         </Grid>
         <Grid item xs={4} lg={12}>
@@ -157,7 +250,6 @@ const BoxSumaProd = () => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    
                   }}
                   size="small"
                 >
@@ -166,7 +258,7 @@ const BoxSumaProd = () => {
                     size="small"
                     variant="outlined"
                     aria-label="reduce"
-                    onClick={decrement}
+                    onClick={decrementQuantity}
                   >
                     <RemoveIcon fontSize="small" />
                   </Button>
@@ -174,19 +266,18 @@ const BoxSumaProd = () => {
                     size="small"
                     variant="outlined"
                     aria-label="increase"
-                    onClick={increment}
+                    onClick={incrementQuantity}
                   >
                     <AddIcon fontSize="small" />
                   </Button>
                 </div>
               </Grid>
               <Grid item xs={3} lg={7}>
-                <div style={{ marginLeft: "10px" }}className="product-box">
+                <div style={{ marginLeft: "10px" }} className="product-box">
                   <TextField
                     fullWidth
                     focused
                     placeholder="Ingresa Código"
-                    
                     value={searchTerm}
                     onChange={handleSearch}
                   ></TextField>
@@ -197,7 +288,11 @@ const BoxSumaProd = () => {
                   <Button size="large" variant="outlined" onClick={handleOpen}>
                     PLU
                   </Button>
-                  <Button size="large" variant="outlined" onClick={handleOpenPeso}>
+                  <Button
+                    size="large"
+                    variant="outlined"
+                    onClick={handleOpenPeso}
+                  >
                     Peso
                   </Button>
                 </div>
@@ -218,7 +313,7 @@ const BoxSumaProd = () => {
             }}
           >
             {/* Sales Table */}
-            <TableContainer>
+            <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -226,19 +321,56 @@ const BoxSumaProd = () => {
                     <TableCell>Descripción</TableCell>
                     <TableCell>Precio</TableCell>
                     <TableCell>Total</TableCell>
+                    <TableCell>Eliminar</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {/* You can map through your sales data and create rows here */}
-                  <TableRow>
-                    <TableCell>Cantidad 1</TableCell>
-                    <TableCell>Descripcion....</TableCell>
-                    <TableCell>5.000</TableCell>
-                    <TableCell>5.000</TableCell>
-                  </TableRow>
-                  {/* Add more rows as needed */}
+                 {salesData.map((sale, index) => {
+ 
+
+  return (
+    <TableRow key={index}>
+      <TableCell>
+        <IconButton onClick={() => incrementQuantity(index)}>
+          +
+        </IconButton>
+        {sale.quantity}
+        <IconButton onClick={() => decrementQuantity(index)}>
+          -
+        </IconButton>
+      </TableCell>
+      <TableCell>{sale.descripcion}</TableCell>
+      <TableCell>{sale.precio}</TableCell>
+      <TableCell>
+        {calculateTotalPrice(sale.quantity, sale.precio)}
+      </TableCell>
+      <TableCell>
+        <IconButton
+          onClick={() => removeFromSalesData(index)}
+          color="secondary"
+        >
+          <RemoveIcon />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  );
+})}
                 </TableBody>
               </Table>
+
+              <Paper
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  padding: "21px",
+                  margin: "5px",
+                }}
+                elevation={21}
+                className="sales-display"
+              >
+                <Typography>Total: {grandTotal}</Typography>
+              </Paper>
             </TableContainer>
           </Paper>
         </Grid>
@@ -252,7 +384,11 @@ const BoxSumaProd = () => {
             />
           </DialogContent>
         </Dialog>
-        <Dialog sx={{ width: "500px" }} open={openPeso} onClose={handleClosePeso}>
+        <Dialog
+          sx={{ width: "500px" }}
+          open={openPeso}
+          onClose={handleClosePeso}
+        >
           <DialogContent>
             <TecladoPeso
               peso={peso}

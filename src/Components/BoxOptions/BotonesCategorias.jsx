@@ -25,7 +25,7 @@ const BotonesCategorias = ({ onClose }) => {
   const { selectedOptions, setSelectedOptions } = useContext(
     SelectedOptionsContext
   );
-  
+
   const [value, setValue] = useState(0);
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
@@ -164,6 +164,7 @@ const BotonesCategorias = ({ onClose }) => {
     setOpenSubFamily(false);
   };
   ///consumo de prodcutos por ids
+
   const handleSubfamilyClick = async (subfamily) => {
     console.log("Subfamily selected:", subfamily);
 
@@ -194,7 +195,7 @@ const BotonesCategorias = ({ onClose }) => {
 
       if (productosResponse.data.cantidadRegistros > 0) {
         // Create and display a map of products
-        setSelectedProduct(productosResponse.data.productos[0]);
+        setSelectedProduct(productosResponse.data.productos);
         setOpenProductDialog(true);
 
         // Display the map of products (you may use a Dialog or any other UI component)
@@ -212,6 +213,18 @@ const BotonesCategorias = ({ onClose }) => {
 
   const handleCloseNoProductDialog = () => {
     setOpenNoProductDialog(false);
+  };
+  const handleProductClick = (product) => {
+    console.log("Product clicked:", product);
+    setSelectedOptions((prevOptions) => ({
+      ...prevOptions,
+      selectedProduct: product,
+    }));
+
+    // You can also perform additional logic based on the selected product
+
+    // Finally, close the product dialog
+    setOpenProductDialog(false);
   };
 
   return (
@@ -389,28 +402,59 @@ const BotonesCategorias = ({ onClose }) => {
           </DialogActions>
         </Dialog>
         <Dialog open={openProductDialog} onClose={handleCloseProductDialog}>
-          <DialogTitle>Producto</DialogTitle>
+          <DialogTitle>Selecciona Producto</DialogTitle>
           <DialogContent>
-            {selectedProduct && (
-              <div>
-                <Typography>Nombre:{selectedProduct.nombre}</Typography>
-                <Typography>Categoría: {selectedProduct.categoria}</Typography>
-                <Typography>
-                  Subcategoría: {selectedProduct.subCategoria}
-                </Typography>
-                <Typography>Familia: {selectedProduct.familia}</Typography>
-                <Typography>
-                  Subfamilia: {selectedProduct.subFamilia}
-                </Typography>
-                {/* Add other product details */}
-              </div>
+            <Typography variant="h6">Selecciona un producto:</Typography>
+            {Array.isArray(selectedProduct) && selectedProduct.length > 0 ? (
+              <Grid container spacing={1}>
+                {selectedProduct.map((product) => (
+                  <Grid item key={product.idProducto}>
+                    <Button
+                      onClick={() => {
+                        console.log("Product Clicked:", product);
+                        handleProductClick(product);
+                      }}
+                      sx={{
+                        margin: 1,
+                        width: "150px",
+                        height: "60px",
+                        backgroundColor: "lightSalmon",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "coral",
+                          color: "white",
+                        },
+                      }}
+                    >
+                      {product.nombre}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography>No hay productos disponibles.</Typography>
             )}
           </DialogContent>
+
           <DialogActions>
-            <Button onClick={handleCloseAddProduct}>Agregar</Button>
+            {/* <Button
+              onClick={() => {
+                console.log("Agregar Clicked");
+                handleCloseAddProduct();
+              }}
+            >
+              Agregar
+            </Button> */}
           </DialogActions>
           <DialogActions>
-            <Button onClick={handleCloseProductDialog}>Cerrar</Button>
+            <Button
+              onClick={() => {
+                console.log("Cerrar Clicked");
+                handleCloseProductDialog();
+              }}
+            >
+              Cerrar
+            </Button>
           </DialogActions>
         </Dialog>
         <Dialog open={openNoProductDialog} onClose={handleCloseNoProductDialog}>

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 
@@ -303,6 +304,19 @@ const BoxGestionCaja = () => {
             >
               <span>1.130.000</span>
             </Box>
+            <Paper
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              padding: "21px",
+              margin: "5px",
+            }}
+            elevation={21}
+            className="sales-display"
+          >
+             <Typography>Total: </Typography>
+          </Paper>
           </Grid>
           <Button
             sx={{
