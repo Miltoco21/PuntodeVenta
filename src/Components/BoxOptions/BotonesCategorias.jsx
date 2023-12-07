@@ -227,6 +227,12 @@ const BotonesCategorias = ({ onClose }) => {
     setOpenProductDialog(false);
   };
 
+const handleProductSelection = (selectedProduct) => {
+  // Assuming you have access to addToSalesData function from the context
+  // Add selected product to sales list
+  addToSalesData(selectedProduct, selectedQuantity);
+};
+
   return (
     <SelectedOptionsContext.Provider
       value={{ selectedProduct, setSelectedProduct }}

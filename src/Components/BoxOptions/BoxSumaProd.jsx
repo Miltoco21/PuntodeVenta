@@ -41,7 +41,7 @@ const BoxSumaProd = () => {
   const {
     selectedOptions,
     salesData,
-    
+    grandTotal,
     addToSalesData,
     removeFromSalesData,
     incrementQuantity,
@@ -57,8 +57,7 @@ const BoxSumaProd = () => {
   const [plu, setPlu] = useState("");
   const [peso, setPeso] = useState("");
   const [open, setOpen] = useState(false);
-  const [grandTotal, setGrandTotal] = useState(0);
-
+  // const [grandTotal, setGrandTotal] = useState(0);
 
   const [openPeso, setOpenPeso] = useState(false);
 
@@ -70,22 +69,19 @@ const BoxSumaProd = () => {
       return total + calculateTotalPrice(sale.quantity, sale.precio);
     }, 0);
   };
-  useEffect(() => {
-    setGrandTotal(calculateGrandTotal());
-  }, [salesData]);
+  // // useEffect(() => {
+  // //   setGrandTotal(calculateGrandTotal());
+  // // }, [salesData]);
 
+ 
   const handlePluSubmit = (productInfo) => {
+    console.log("Product Info in handlePluSubmit:", productInfo);
     setPlu(productInfo.idProducto); // Assuming idProducto is the product ID
     handleClose(); // Close the PLU dialog
     if (productInfo) {
       addToSalesData(productInfo, selectedQuantity);
     }
   };
-
-  
-  
-  
- 
 
   const handleOpen = () => {
     setOpen(true);
@@ -114,8 +110,6 @@ const BoxSumaProd = () => {
     setPlu(event.target.value);
   };
 
- 
-
   const handlePesoSubmit = (pesoValue) => {
     setPeso(pesoValue);
     handleClose();
@@ -125,43 +119,96 @@ const BoxSumaProd = () => {
   };
 
   // Busqueda plu
-  useEffect(() => {
-    const fetchProductInfo = async () => {
-      try {
-        if (searchTerm) {
-          const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
-          );
-          console.log("API Response:", response.data);
+  // const fetchProductInfo = async () => {
+  //   try {
+  //     if (searchTerm) {
+  //       const response = await axios.get(
+  //         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
+  //       );
+  //       console.log("API Response:", response.data);
   
-          if (response.data.cantidadRegistros > 0) {
-            // If there are products, set the first one in the state
-            const newProductInfo = response.data.productos[0];
-            setProductInfo(newProductInfo);
-            // Remove the addToSalesData if you don't want to add this product to sales data immediately
-          } else {
-            // If no products found, clear the product information
-            setProductInfo(null);
-          }
-        } else {
-          setProductInfo(null);
-        }
-      } catch (error) {
-        console.error("Error fetching product information:", error);
-      }
-    };
+  //       if (response.data.cantidadRegistros > 0) {
+  //         // If there are products, set the first one in the state
+  //         const newProductInfo = response.data.productos[0];
+  //         setProductInfo(newProductInfo);
+  //         addToSalesData(newProductInfo, selectedQuantity); // Add to sales data here
+  //       } else {
+  //         // If no products found, clear the product information
+  //         setProductInfo(null);
+  //       }
+  //     } else {
+  //       setProductInfo(null);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching product information:", error);
+  //   }
+  // };
   
-    fetchProductInfo(); 
-  }, [searchTerm]);
+  // useEffect(() => {
+  //   const fetchProductInfo = async () => {
+  //     try {
+  //       if (selectedOptions.selectedProduct) {
+  //         // If a product is selected, use its information
+  //         setProductInfo(selectedOptions.selectedProduct);
+  //       } else if (searchTerm) {
+  //         // If no product is selected, use the search term
+  //         const response = await axios.get(
+  //           `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
+  //         );
+  //         console.log("API Response:", response.data);
 
+  //         if (response.data.cantidadRegistros > 0) {
+  //           // If there are products, set the first one in the state
+  //           const newProductInfo = response.data.productos[0];
+  //           setProductInfo(newProductInfo);
+  //           // Remove the addToSalesData if you don't want to add this product to sales data immediately
+  //         } else {
+  //           // If no products found, clear the product information
+  //           setProductInfo(null);
+  //         }
+  //       } else {
+  //         setProductInfo(null);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching product information:", error);
+  //     }
+  //   };
 
+  //   fetchProductInfo();
+  // }, [searchTerm, selectedOptions.selectedProduct]);
+  // useEffect(() => {
+  //   const fetchProductInfo = async () => {
+  //     try {
+  //       if (searchTerm) {
+  //         const response = await axios.get(
+  //           `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
+  //         );
+  //         console.log("API Response:", response.data);
+
+  //         if (response.data.cantidadRegistros > 0) {
+  //           // If there are products, set the first one in the state
+  //           const newProductInfo = response.data.productos[0];
+  //           setProductInfo(newProductInfo);
+  //           // Remove the addToSalesData if you don't want to add this product to sales data immediately
+  //         } else {
+  //           // If no products found, clear the product information
+  //           setProductInfo(null);
+  //         }
+  //       } else {
+  //         setProductInfo(null);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching product information:", error);
+  //     }
+  //   };
+
+  //   fetchProductInfo();
+  // }, [searchTerm]);
 
   const handlePluButtonClick = () => {
     // Open the PLU dialog when the PLU button is clicked
     handleOpen();
   };
-
- 
 
   return (
     <Paper
@@ -314,64 +361,95 @@ const BoxSumaProd = () => {
           >
             {/* Sales Table */}
             <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Cantidad</TableCell>
-                    <TableCell>Descripción</TableCell>
-                    <TableCell>Precio</TableCell>
-                    <TableCell>Total</TableCell>
-                    <TableCell>Eliminar</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                 {salesData.map((sale, index) => {
- 
-
-  return (
-    <TableRow key={index}>
-      <TableCell>
-        <IconButton onClick={() => incrementQuantity(index)}>
-          +
-        </IconButton>
-        {sale.quantity}
-        <IconButton onClick={() => decrementQuantity(index)}>
-          -
-        </IconButton>
-      </TableCell>
-      <TableCell>{sale.descripcion}</TableCell>
-      <TableCell>{sale.precio}</TableCell>
-      <TableCell>
-        {calculateTotalPrice(sale.quantity, sale.precio)}
-      </TableCell>
-      <TableCell>
-        <IconButton
-          onClick={() => removeFromSalesData(index)}
-          color="secondary"
-        >
-          <RemoveIcon />
-        </IconButton>
-      </TableCell>
-    </TableRow>
-  );
-})}
-                </TableBody>
-              </Table>
-
-              <Paper
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  padding: "21px",
-                  margin: "5px",
-                }}
-                elevation={21}
-                className="sales-display"
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell>Cantidad</TableCell>
+        <TableCell>Descripción</TableCell>
+        <TableCell>Precio</TableCell>
+        <TableCell>Total</TableCell>
+        <TableCell>Eliminar</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {salesData.map((sale, index) => {
+        return (
+          <TableRow key={index}>
+            <TableCell>
+              <IconButton onClick={() => incrementQuantity(index, productInfo)}>
+                +
+              </IconButton>
+              {sale.quantity}
+              <IconButton onClick={() => decrementQuantity(index, productInfo)}>
+                -
+              </IconButton>
+            </TableCell>
+            <TableCell>{sale.descripcion}</TableCell>
+            <TableCell>{sale.precio}</TableCell>
+            <TableCell>
+              {calculateTotalPrice(sale.quantity, sale.precio)}
+            </TableCell>
+            <TableCell>
+              <IconButton
+                onClick={() => removeFromSalesData(index)}
+                color="secondary"
               >
-                <Typography>Total: {grandTotal}</Typography>
-              </Paper>
-            </TableContainer>
+                <RemoveIcon />
+              </IconButton>
+            </TableCell>
+          </TableRow>
+        );
+      })}
+      {selectedOptions.selectedProduct && (
+        <TableRow key="selected-product">
+          <TableCell>
+            <IconButton
+              onClick={() => addToSalesData(selectedOptions.selectedProduct, 1)}
+            >
+              +
+            </IconButton>
+            1
+            <IconButton
+              onClick={() => removeFromSalesData(selectedOptions.selectedProduct, 1)}
+            >
+              -
+            </IconButton>
+          </TableCell>
+          <TableCell>{selectedOptions.selectedProduct.descripcion}</TableCell>
+          <TableCell>
+            {selectedOptions.selectedProduct.precioVenta || 0}
+          </TableCell>
+          <TableCell>
+            {calculateTotalPrice(1, selectedOptions.selectedProduct.precioVenta || 0)}
+          </TableCell>
+          <TableCell>
+            <IconButton
+              onClick={() => removeFromSalesData(selectedOptions.selectedProduct)}
+              color="secondary"
+            >
+              <RemoveIcon />
+            </IconButton>
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+
+  <Paper
+    sx={{
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      padding: "21px",
+      margin: "5px",
+    }}
+    elevation={21}
+    className="sales-display"
+  >
+    <Typography>Total: {grandTotal}</Typography>
+  </Paper>
+</TableContainer>
+
           </Paper>
         </Grid>
         <Dialog sx={{ width: "500px" }} open={open} onClose={handleClose}>

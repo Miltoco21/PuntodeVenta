@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 export const SelectedOptionsContext = React.createContext();
 
@@ -17,11 +19,19 @@ export const SelectedOptionsProvider = ({ children }) => {
   const [quantity, setQuantity] = useState(1);
 
   const [salesData, setSalesData] = useState([]);
+  const [grandTotal, setGrandTotal] = useState(0);
+  const calculateTotalPrice = (quantity, price) => {
+    return quantity * price;
+  };
+  const calculateGrandTotal = () => {
+    return salesData.reduce((total, sale) => {
+      return total + calculateTotalPrice(sale.quantity, sale.precio);
+    }, 0);
+  };
 
-  const grandTotal = useMemo(() => {
-    return salesData.reduce((total, sale) => total + sale.total, 0);
+  useEffect(() => {
+    setGrandTotal(calculateGrandTotal());
   }, [salesData]);
-
   const addToSalesData = (product, quantity) => {
     const newSale = {
       cantidad: quantity,
@@ -30,28 +40,70 @@ export const SelectedOptionsProvider = ({ children }) => {
       total: quantity * (product.precioVenta || 0),
       quantity: 1,
     };
-
+  
     setSalesData((prevSalesData) => [...prevSalesData, newSale]);
   };
-  // const addToSalesData = (productInfo, quantity) => {
-  //   const existingProductIndex = salesData.findIndex(
-  //     (sale) => sale.id === productInfo.id
+  
+
+  // const addToSalesData = (product, quantity) => {
+  //   const existingSaleIndex = salesData.findIndex(
+  //     (sale) => sale.descripcion === product.nombre
   //   );
-  
-  //   if (existingProductIndex !== -1) {
-  //     // Product already exists, increment quantity
-  //     const updatedSalesData = salesData.map((sale, index) => {
-  //       if (index === existingProductIndex) {
-  //         return { ...sale, quantity: sale.quantity + quantity };
-  //       }
-  //       return sale;
-  //     });
-  
+
+  //   if (existingSaleIndex !== -1) {
+  //     const updatedSalesData = [...salesData];
+  //     updatedSalesData[existingSaleIndex].quantity += quantity;
+  //     updatedSalesData[existingSaleIndex].total = calculateTotalPrice(
+  //       updatedSalesData[existingSaleIndex].quantity,
+  //       updatedSalesData[existingSaleIndex].precio
+  //     );
   //     setSalesData(updatedSalesData);
   //   } else {
-  //     // Product doesn't exist, add it to salesData
-  //     setSalesData([...salesData, { ...productInfo, quantity }]);
+  //     console.log("Product Info:", productInfo);
+  //     console.log("Selected Quantity:", selectedQuantity);
+  //     const newSale = {
+  //       cantidad: quantity,
+  //       descripcion: product.nombre,
+  //       precio: product.precioVenta || 0,
+  //       total: quantity * (product.precioVenta || 0),
+  //       quantity: 1,
+  //     };
+
+  //     setSalesData((prevSalesData) => [...prevSalesData, newSale]);
   //   }
+  // };
+
+  // const addToSalesData = (product, quantity) => {
+  //   const newSale = {
+  //     cantidad: quantity,
+  //     descripcion: product.nombre,
+  //     precio: product.precioVenta || 0,
+  //     total: quantity * (product.precioVenta || 0),
+  //     quantity: 1,
+  //     // Include the selected product information
+  //     selectedProduct: {
+  //       cantidad: quantity,
+  //       descripcion: product.nombre,
+  //       precio: product.precioVenta || 0,
+  //       total: quantity * (product.precioVenta || 0),
+  //       quantity: 1,
+  //       // Add more fields as needed
+  //     },
+  //   };
+
+  //   setSalesData((prevSalesData) => [...prevSalesData, newSale]);
+  // };
+
+  // const addToSalesData = (product, quantity) => {
+  //   const newSale = {
+  //     cantidad: quantity,
+  //     descripcion: product.nombre,
+  //     precio: product.precioVenta || 0,
+  //     total: quantity * (product.precioVenta || 0),
+  //     quantity: 1,
+  //   };
+
+  //   setSalesData((prevSalesData) => [...prevSalesData, newSale]);
   // };
 
   const removeFromSalesData = (index) => {
@@ -60,7 +112,7 @@ export const SelectedOptionsProvider = ({ children }) => {
     );
   };
 
-  const incrementQuantity = (index) => {
+  const incrementQuantity = (index, productInfo) => {
     const updatedSalesData = salesData.map((sale, i) => {
       if (i === index) {
         const newQuantity = sale.quantity + 1;
@@ -70,9 +122,13 @@ export const SelectedOptionsProvider = ({ children }) => {
     });
   
     setSalesData(updatedSalesData);
+  
+    if (productInfo) {
+      addToSalesData(productInfo, selectedQuantity);
+    }
   };
   
-  const decrementQuantity = (index) => {
+  const decrementQuantity = (index, productInfo) => {
     const updatedSalesData = salesData.map((sale, i) => {
       if (i === index && sale.quantity > 1) {
         const newQuantity = sale.quantity - 1;
@@ -82,8 +138,11 @@ export const SelectedOptionsProvider = ({ children }) => {
     });
   
     setSalesData(updatedSalesData);
+  
+    if (productInfo) {
+      addToSalesData(productInfo, selectedQuantity);
+    }
   };
-
 
   const handleQuantityChange = (event) => {
     setQuantity(parseInt(event.target.value, 10));
@@ -97,6 +156,7 @@ export const SelectedOptionsProvider = ({ children }) => {
         salesData,
         setSalesData,
         grandTotal,
+        setGrandTotal,
         addToSalesData,
         removeFromSalesData,
         incrementQuantity,

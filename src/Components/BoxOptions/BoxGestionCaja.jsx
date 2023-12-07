@@ -1,8 +1,9 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-undef */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import { Box, Paper, Grid, Typography, Button,DialogContent,Dialog } from "@mui/material";
 import { styled } from "@mui/system";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
@@ -11,6 +12,7 @@ import LockPersonIcon from "@mui/icons-material/LockPerson";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import CoffeeIcon from "@mui/icons-material/Coffee";
 import BotonesCategorias from "./BotonesCategorias";
+import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 
 // const ButtonS = styled(Button)({
 //   width: "100%",
@@ -35,6 +37,8 @@ import BotonesCategorias from "./BotonesCategorias";
 // });
 
 const BoxGestionCaja = () => {
+  const { grandTotal } = useContext(SelectedOptionsContext);
+ 
   const [value, setValue] = useState(0);
 
   const [openCategoria, setOpenCategoria] = useState(false);
@@ -302,7 +306,7 @@ const BoxGestionCaja = () => {
                 padding: "5px",
               }}
             >
-              <span>1.130.000</span>
+              <span>{grandTotal}</span>
             </Box>
             <Paper
             sx={{
@@ -315,7 +319,7 @@ const BoxGestionCaja = () => {
             elevation={21}
             className="sales-display"
           >
-             <Typography>Total: </Typography>
+             {/* <Typography>Total:{grandTotal} </Typography> */}
           </Paper>
           </Grid>
           <Button

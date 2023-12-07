@@ -37,37 +37,24 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
     }
   };
 
-  // const handleEnter = async () => {
-  //   try {
-  //     // Make an API call to fetch product information based on sellerCode
-  //     const response = await axios.get(
-  //       `https://www.example.com/api/products/${sellerCode}`
-  //     );
-  
-  //     // Assuming the response contains product information
-  //     const productInfo = response.data;
-  
-  //     // Pass the product information to the parent component or perform further actions
-  //     onPluSubmit(productInfo);
-  //     onClose(false);
-  //   } catch (error) {
-  //     // Handle API error (e.g., show an error message)
-  //     console.error("Error fetching product information:", error);
-  //   }
-  // };
   const handleEnter = async () => {
     try {
       // Make an API call to fetch product information based on product ID (assuming PLU is the product ID)
       const response = await axios.get(
         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${sellerCode}`
       );
-  
+      console.log("API Response:", response.data);
       // Assuming the response contains product information
       const productInfo = response.data.productos[0];
   
-      // Pass the product information to the parent component or perform further actions
-      onPluSubmit(productInfo);
-      onClose(false);
+      if (productInfo) {
+        // Pass the product information to the parent component or perform further actions
+        onPluSubmit(productInfo);
+        onClose(false);
+      } else {
+        // Handle the case where productInfo is undefined or empty
+        console.error("Product information not found");
+      }
     } catch (error) {
       // Handle API error (e.g., show an error message)
       console.error("Error fetching product information:", error);
