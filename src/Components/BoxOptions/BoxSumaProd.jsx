@@ -371,7 +371,7 @@ const BoxSumaProd = () => {
         <TableCell>Eliminar</TableCell>
       </TableRow>
     </TableHead>
-    <TableBody>
+    <TableBody  style={{ maxHeight: "300px", overflowY: "auto" }}>
       {salesData.map((sale, index) => {
         return (
           <TableRow key={index}>
@@ -400,38 +400,7 @@ const BoxSumaProd = () => {
           </TableRow>
         );
       })}
-      {selectedOptions.selectedProduct && (
-        <TableRow key="selected-product">
-          <TableCell>
-            <IconButton
-              onClick={() => addToSalesData(selectedOptions.selectedProduct, 1)}
-            >
-              +
-            </IconButton>
-            1
-            <IconButton
-              onClick={() => removeFromSalesData(selectedOptions.selectedProduct, 1)}
-            >
-              -
-            </IconButton>
-          </TableCell>
-          <TableCell>{selectedOptions.selectedProduct.descripcion}</TableCell>
-          <TableCell>
-            {selectedOptions.selectedProduct.precioVenta || 0}
-          </TableCell>
-          <TableCell>
-            {calculateTotalPrice(1, selectedOptions.selectedProduct.precioVenta || 0)}
-          </TableCell>
-          <TableCell>
-            <IconButton
-              onClick={() => removeFromSalesData(selectedOptions.selectedProduct)}
-              color="secondary"
-            >
-              <RemoveIcon />
-            </IconButton>
-          </TableCell>
-        </TableRow>
-      )}
+    
     </TableBody>
   </Table>
 

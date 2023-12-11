@@ -25,7 +25,7 @@ const BotonesCategorias = ({ onClose }) => {
   const { selectedOptions, setSelectedOptions } = useContext(
     SelectedOptionsContext
   );
-
+  const { addToSalesData } = useContext(SelectedOptionsContext);
   const [value, setValue] = useState(0);
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
@@ -219,19 +219,20 @@ const BotonesCategorias = ({ onClose }) => {
     setSelectedOptions((prevOptions) => ({
       ...prevOptions,
       selectedProduct: product,
+     
     }));
-
+    addToSalesData(product)
     // You can also perform additional logic based on the selected product
 
     // Finally, close the product dialog
     setOpenProductDialog(false);
   };
 
-const handleProductSelection = (selectedProduct) => {
-  // Assuming you have access to addToSalesData function from the context
-  // Add selected product to sales list
-  addToSalesData(selectedProduct, selectedQuantity);
-};
+// const handleProductSelection = (selectedProduct) => {
+//   // Assuming you have access to addToSalesData function from the context
+//   // Add selected product to sales list
+//   addToSalesData(selectedProduct, 1);
+// };
 
   return (
     <SelectedOptionsContext.Provider
@@ -443,14 +444,7 @@ const handleProductSelection = (selectedProduct) => {
           </DialogContent>
 
           <DialogActions>
-            {/* <Button
-              onClick={() => {
-                console.log("Agregar Clicked");
-                handleCloseAddProduct();
-              }}
-            >
-              Agregar
-            </Button> */}
+           
           </DialogActions>
           <DialogActions>
             <Button

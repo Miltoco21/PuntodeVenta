@@ -32,6 +32,7 @@ export const SelectedOptionsProvider = ({ children }) => {
   useEffect(() => {
     setGrandTotal(calculateGrandTotal());
   }, [salesData]);
+
   const addToSalesData = (product, quantity) => {
     const newSale = {
       cantidad: quantity,
@@ -41,70 +42,17 @@ export const SelectedOptionsProvider = ({ children }) => {
       quantity: 1,
     };
   
-    setSalesData((prevSalesData) => [...prevSalesData, newSale]);
+
+    setSalesData((prevSalesData) => {
+      const updatedSalesData = [...prevSalesData, newSale];
+
+      return updatedSalesData;
+    });
   };
   
+  
 
-  // const addToSalesData = (product, quantity) => {
-  //   const existingSaleIndex = salesData.findIndex(
-  //     (sale) => sale.descripcion === product.nombre
-  //   );
-
-  //   if (existingSaleIndex !== -1) {
-  //     const updatedSalesData = [...salesData];
-  //     updatedSalesData[existingSaleIndex].quantity += quantity;
-  //     updatedSalesData[existingSaleIndex].total = calculateTotalPrice(
-  //       updatedSalesData[existingSaleIndex].quantity,
-  //       updatedSalesData[existingSaleIndex].precio
-  //     );
-  //     setSalesData(updatedSalesData);
-  //   } else {
-  //     console.log("Product Info:", productInfo);
-  //     console.log("Selected Quantity:", selectedQuantity);
-  //     const newSale = {
-  //       cantidad: quantity,
-  //       descripcion: product.nombre,
-  //       precio: product.precioVenta || 0,
-  //       total: quantity * (product.precioVenta || 0),
-  //       quantity: 1,
-  //     };
-
-  //     setSalesData((prevSalesData) => [...prevSalesData, newSale]);
-  //   }
-  // };
-
-  // const addToSalesData = (product, quantity) => {
-  //   const newSale = {
-  //     cantidad: quantity,
-  //     descripcion: product.nombre,
-  //     precio: product.precioVenta || 0,
-  //     total: quantity * (product.precioVenta || 0),
-  //     quantity: 1,
-  //     // Include the selected product information
-  //     selectedProduct: {
-  //       cantidad: quantity,
-  //       descripcion: product.nombre,
-  //       precio: product.precioVenta || 0,
-  //       total: quantity * (product.precioVenta || 0),
-  //       quantity: 1,
-  //       // Add more fields as needed
-  //     },
-  //   };
-
-  //   setSalesData((prevSalesData) => [...prevSalesData, newSale]);
-  // };
-
-  // const addToSalesData = (product, quantity) => {
-  //   const newSale = {
-  //     cantidad: quantity,
-  //     descripcion: product.nombre,
-  //     precio: product.precioVenta || 0,
-  //     total: quantity * (product.precioVenta || 0),
-  //     quantity: 1,
-  //   };
-
-  //   setSalesData((prevSalesData) => [...prevSalesData, newSale]);
-  // };
+  
 
   const removeFromSalesData = (index) => {
     setSalesData((prevSalesData) =>

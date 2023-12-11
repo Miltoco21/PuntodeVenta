@@ -3,8 +3,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 
-import React, { useState , useContext } from "react";
-import { Box, Paper, Grid, Typography, Button,DialogContent,Dialog } from "@mui/material";
+import React, { useState, useContext, useEffect } from "react";
+import {
+  Box,
+  Paper,
+  Grid,
+  TextField,
+  Typography,
+  Button,
+  DialogContent,
+  Dialog,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import { styled } from "@mui/system";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import EditIcon from "@mui/icons-material/Edit";
@@ -37,9 +52,69 @@ import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 // });
 
 const BoxGestionCaja = () => {
-  const { grandTotal } = useContext(SelectedOptionsContext);
- 
+  const { grandTotal, setGrandTotal } = useContext(SelectedOptionsContext);
+  const [change, setChange] = useState(0);
   const [value, setValue] = useState(0);
+  const [sellerCode, setSellerCode] = useState("");
+
+  const [inputValue, setInputValue] = useState("");
+
+  const [activeField, setActiveField] = useState("sellerCode");
+
+  const handleFieldFocus = (field) => {
+    setActiveField(field);
+  };
+  // const handleNumberClick = (number) => {
+  //   if (activeField === "sellerCode") {
+  //     setSellerCode(sellerCode + number);
+  //   }
+
+  //   // Your logic to update the grandTotal prop
+  //   const newTotal = grandTotal - parseInt(number);
+  //   setGrandTotal(newTotal);
+  //   // Other logic if needed
+  // };
+
+  let isExecuting = false;
+
+  const handleNumberClick = (number) => {
+    if (isExecuting) {
+      return;
+    }
+
+    isExecuting = true;
+
+    const payment = parseFloat(number); // Use parseFloat for decimal numbers
+    const newTotal = grandTotal - payment;
+
+    // Ensure the newTotal is not negative
+    const validNewTotal = Math.max(newTotal, 0);
+
+    setGrandTotal(validNewTotal);
+    setChange(Math.max(payment - validNewTotal, 0));
+
+    isExecuting = false;
+  };
+
+  const handleDeleteOne = () => {
+    if (activeField === "sellerCode") {
+      setSellerCode(sellerCode.slice(0, -1));
+    } else if (activeField === "code") {
+      setCode(code.slice(0, -1));
+    }
+  };
+
+  useEffect(() => {
+    console.log(change);
+  }, [change]);
+
+  const handleDeleteAll = () => {
+    if (activeField === "sellerCode") {
+      setSellerCode("");
+    } else if (activeField === "code") {
+      setCode("");
+    }
+  };
 
   const [openCategoria, setOpenCategoria] = useState(false);
   const handleOpenCategoria = () => {
@@ -54,6 +129,21 @@ const BoxGestionCaja = () => {
     setValue(newValue);
   };
 
+  const [openDialog, setOpenDialog] = useState(false);
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    // Reset the seller code, input value, and change
+    setSellerCode("");
+    setInputValue("");
+    setChange(0);
+
+    // Close the dialog
+    setOpenDialog(false);
+  };
+
   return (
     <Paper
       elevation={13}
@@ -65,11 +155,15 @@ const BoxGestionCaja = () => {
         marginBottom: "10px",
         marginLeft: "5px",
 
-        justifyContent:"space-around",
+        justifyContent: "space-around",
         alignItems: "center",
       }}
     >
-      <Grid container spacing={1} sx={{ marginLeft: "5px", marginTop: "5px", marginRight: "-9px"}}>
+      <Grid
+        container
+        spacing={1}
+        sx={{ marginLeft: "5px", marginTop: "5px", marginRight: "-9px" }}
+      >
         <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
           <Button
             elevation={8}
@@ -119,7 +213,7 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            onClick={ handleOpenCategoria}
+            onClick={handleOpenCategoria}
           >
             {/* <LockPersonIcon /> */}
             <Typography variant="h7">Familias</Typography>
@@ -127,7 +221,6 @@ const BoxGestionCaja = () => {
         </Grid>
         <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
           <Button
-           
             sx={{
               width: "100px",
               height: "100px",
@@ -138,7 +231,6 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            
             onClick={() => handleNavigationChange(null, 3)}
           >
             {/* <PowerSettingsNewIcon /> */}
@@ -162,7 +254,7 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">Suspender Venta</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2} >
+        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
           <Button
             sx={{
               width: "100px",
@@ -308,19 +400,6 @@ const BoxGestionCaja = () => {
             >
               <span>{grandTotal}</span>
             </Box>
-            <Paper
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              padding: "21px",
-              margin: "5px",
-            }}
-            elevation={21}
-            className="sales-display"
-          >
-             {/* <Typography>Total:{grandTotal} </Typography> */}
-          </Paper>
           </Grid>
           <Button
             sx={{
@@ -334,24 +413,253 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            onClick={() => handleNavigationChange(null, 12)}
+            onClick={handleOpenDialog}
+            // onClick={() => handleNavigationChange(null, 12)}
           >
             <Typography variant="h7">Pagar</Typography>
           </Button>
         </Grid>
       </Grid>
-      <Dialog sx={{ width: "1300px" }}open={openCategoria} onClose={handleCloseCategoria}>
-          <DialogContent>
-            <BotonesCategorias
-            
-              onClose={handleCloseCategoria}
-            
-            />
-          </DialogContent>
-        </Dialog>
-    </Paper>
+      <Dialog
+        sx={{ width: "1300px" }}
+        open={openCategoria}
+        onClose={handleCloseCategoria}
+      >
+        <DialogContent>
+          <BotonesCategorias onClose={handleCloseCategoria} />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        sx={{ width: "100%", maxWidth: "1500px" }}
+        open={openDialog}
+        onClose={handleCloseDialog}
+      >
+        <DialogContent sx={{ width: "100%" }}>
+          <Paper elevation={5} variant="h6">
+            Total: {grandTotal}
+          </Paper>
+          <Paper
+            elevation={2}
+            sx={{
+              height: "100%",
+              width: "100%",
+              marginLeft: "-20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <Grid container spacing={1} sx={{ margin: "2px" }}>
+              {/* Dynamic buttons */}
+              <TableContainer
+                component={Paper}
+                sx={{ maxWidth: 400, margin: "auto" }}
+              >
+                <Table size="small">
+                  <TableHead>
+                    <TableRow></TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Total:</TableCell>
+                      <TableCell> {grandTotal}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Selected</TableCell>
+                      <TableCell>{sellerCode}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Pagado</TableCell>
+                      <TableCell>{inputValue}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Vuelto</TableCell>
+                      <TableCell>{change}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-    
+              <Grid item xs={12} lg={4}>
+                <Grid container spacing={1} sx={{ margin: "2px" }}>
+                  {Array.from({ length: 9 }, (_, i) => (
+                    <Grid item xs={4} lg={4} key={i}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick(i.toString())}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        {i + 1}
+                      </Button>
+                    </Grid>
+                  ))}
+                  <Grid item xs={4} lg={4}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("0")}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      0
+                    </Button>
+                  </Grid>
+                  <Grid item xs={4} lg={4}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("00")}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      00
+                    </Button>
+                  </Grid>
+                  <Grid item xs={4} lg={4}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("000")}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      000
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+              {/* Fixed value buttons */}
+              <Grid item xs={12} lg={4}>
+                <Grid container spacing={1} sx={{ margin: "2px" }}>
+                  <Grid item xs={12} lg={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("20000")}
+                      value={20000}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      20.000
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} lg={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("10000")}
+                      value={10000}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      10.000
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} lg={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("5000")}
+                      value={5000}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      5.000
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} lg={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("2000")}
+                      value={2000}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      2.000
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} lg={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleNumberClick("1000")}
+                      value={1000}
+                      fullWidth
+                      sx={{ height: "100%" }}
+                    >
+                      1.000
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid item xs={12} lg={12}>
+                  <Grid
+                    container
+                    direction="row"
+                    spacing={1}
+                    sx={{ margin: "2px" }}
+                  >
+                    <Grid item xs={4} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("Efectivo")}
+                        value={1}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        Efectivo
+                      </Button>
+                    </Grid>
+                    <Grid item xs={4} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("Tarjeta")}
+                        value={2}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        Tarjeta
+                      </Button>
+                    </Grid>
+                    <Grid item xs={4} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("Cuenta corriente")}
+                        value={3}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        Cuenta Corriente
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid
+                sx={{
+                  display: "flex",
+                  flexDirection: "rowReverse",
+                  justifyContent: "space-between",
+                }}
+                item
+                xs={5}
+                lg={12}
+              >
+                <Button
+                  sx={{ margin: "5px" }}
+                  variant="contained"
+                  color="primary"
+                  // onClick={handleEnter}
+                >
+                  Enter
+                </Button>
+                <Button
+                  sx={{ margin: "5px", marginRight: "42px" }}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleCloseDialog}
+                >
+                  Salir
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </DialogContent>
+      </Dialog>
+    </Paper>
   );
 };
 
