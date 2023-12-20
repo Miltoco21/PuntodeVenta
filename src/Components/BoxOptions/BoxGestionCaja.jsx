@@ -20,100 +20,155 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { styled } from "@mui/system";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import EditIcon from "@mui/icons-material/Edit";
-import LockPersonIcon from "@mui/icons-material/LockPerson";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import CoffeeIcon from "@mui/icons-material/Coffee";
+
 import BotonesCategorias from "./BotonesCategorias";
 import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 
-// const ButtonS = styled(Button)({
-//   width: "100%",
-//   padding: "20px",
-//   marginBottom: "10px",
-//   backgroundColor: "green",
-//   borderRadius: "18px",
-//   "& .MuiSvgIcon-root": {
-//     fontSize: "80px",
-//     color: "coral",
-//   },
-//   "&:hover": {
-//     backgroundColor: "green",
-//     color: "coral",
-//   },
-//   "@media (max-width: 600px)": {
-//     padding: "10px",
-//     "& .MuiSvgIcon-root": {
-//       fontSize: "40px",
-//     },
-//   },
-// });
-
 const BoxGestionCaja = () => {
   const { grandTotal, setGrandTotal } = useContext(SelectedOptionsContext);
+
+  const [clickedDigits, setClickedDigits] = useState([]);
+  const [totalAPagar, setTotalAPagar] = useState(0);
   const [change, setChange] = useState(0);
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState("");
   const [sellerCode, setSellerCode] = useState("");
-
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+  const [validationMessage, setValidationMessage] = useState("");
+  const [typedNumber, setTypedNumber] = useState(0);
   const [inputValue, setInputValue] = useState("");
+  const [activeField, setActiveField] = useState(false);
+  const [selectedButtons, setSelectedButtons] = useState([]);
+  const [selectedAmount, setSelectedAmount] = useState(0);
+  const [recordList, setRecordList] = useState([]);
+  const [inputDigits, setInputDigits] = useState("");
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const [isOpenCategoria, setIsOpenCategoria] = useState(false);
+  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
 
-  const [activeField, setActiveField] = useState("sellerCode");
+  const PAYMENT_METHODS = [
+    "Efectivo",
+    "Tarjeta",
+    "Cuenta corriente",
+    "Transferencia",
+  ];
 
-  const handleFieldFocus = (field) => {
-    setActiveField(field);
+  const handleTypedNumberClick = (number) => {
+    setActiveField(true);
+    setInputDigits((prevDigits) => prevDigits + number);
+
+    // Actualiza el monto seleccionado en tiempo real
+    setTypedNumber((prevTypedNumber) => prevTypedNumber + number);
+    updateSelectedValues(parseFloat(inputDigits) || 0);
   };
-  // const handleNumberClick = (number) => {
-  //   if (activeField === "sellerCode") {
-  //     setSellerCode(sellerCode + number);
-  //   }
+  const handleZeroClick = () => {
+    setActiveField(true);
+    setInputDigits((prevDigits) => prevDigits + "0");
+    updateSelectedValues("0");
+  };
+  const updateSelectedValues = (digit) => {
+    // Concatenar el dígito al monto seleccionado
+    setSelectedAmount((prevAmount) => prevAmount + digit);
+    setSelectedPaymentMethod(selectedPaymentMethod);
+  };
 
-  //   // Your logic to update the grandTotal prop
-  //   const newTotal = grandTotal - parseInt(number);
-  //   setGrandTotal(newTotal);
-  //   // Other logic if needed
-  // };
+  const handleEnterClick = () => {
+    // Define the logic for handleEnterClick
+    // For example, you can perform actions when the Enter button is clicked
+  };
 
-  let isExecuting = false;
-
-  const handleNumberClick = (number) => {
-    if (isExecuting) {
-      return;
-    }
-
-    isExecuting = true;
-
-    const payment = parseFloat(number); // Use parseFloat for decimal numbers
-    const newTotal = grandTotal - payment;
-
-    // Ensure the newTotal is not negative
-    const validNewTotal = Math.max(newTotal, 0);
-
-    setGrandTotal(validNewTotal);
-    setChange(Math.max(payment - validNewTotal, 0));
-
-    isExecuting = false;
+  const handlePaymentMethodClick = (method) => {
+    // Add logic to handle payment method selection
+    setSelectedPaymentMethod(method);
+    setValidationMessage(""); // Clear any previous validation messages
   };
 
   const handleDeleteOne = () => {
-    if (activeField === "sellerCode") {
-      setSellerCode(sellerCode.slice(0, -1));
-    } else if (activeField === "code") {
-      setCode(code.slice(0, -1));
+    setActiveField(true);
+    setInputDigits((prevDigits) => prevDigits.slice(0, -1));
+    // Update the selected amount by removing the last digit
+    setSelectedAmount((prevAmount) => {
+      const newAmount = Math.floor(prevAmount / 10);
+      return newAmount;
+    });
+  };
+
+  const handleConfirmClick = () => {
+    if (inputDigits && selectedPaymentMethod) {
+      // Convierte los dígitos ingresados en un número
+      const typedAmount = parseFloat(inputDigits) || 0;
+
+      // Agrega los valores acumulados al registro de productos vendidos
+      setRecordList([
+        ...recordList,
+        { amount: typedAmount, paymentMethod: selectedPaymentMethod },
+      ]);
+      setTotalPaidAmount(totalPaidAmount + typedAmount);
+      // Limpia los dígitos ingresados, el monto seleccionado y el método de pago después de la confirmación
+      setInputDigits("");
+      setSelectedAmount(0);
+      setSelectedPaymentMethod("");
     }
+  };
+
+  const updateTotalAPagar = (newTotalAPagar) => {
+    setTotalAPagar(newTotalAPagar);
+  };
+
+  const updateGrandTotal = (newGrandTotal) => {
+    setGrandTotal(newGrandTotal);
+  };
+
+  const updateChange = (newChange) => {
+    setChange(newChange);
+  };
+
+  const updateSelectedButtons = (newValue, newAmount) => {
+    setSelectedButtons([
+      ...selectedButtons,
+      { value: newValue, amount: newAmount },
+    ]);
+  };
+
+  const updateSelectedAmount = (newAmount) => {
+    setSelectedAmount(selectedAmount + newAmount);
+  };
+
+  const updateSelectedPaymentMethod = (newMethod) => {
+    setSelectedPaymentMethod(newMethod);
+  };
+  const handleDeleteSales = () => {
+    // Add logic to delete all sales items
+    // For example, set the grand total to zero and clear the seller code
+    setGrandTotal(0);
+    setSellerCode("");
+    setInputValue("");
+    setChange(0);
   };
 
   useEffect(() => {
     console.log(change);
   }, [change]);
-
   const handleDeleteAll = () => {
-    if (activeField === "sellerCode") {
-      setSellerCode("");
-    } else if (activeField === "code") {
-      setCode("");
-    }
+    // Borrar todos los números escritos cuando se hace clic en "Borrar Todo"
+    setTypedNumber("");
+
+    // Limpiar los valores seleccionados
+    setSelectedAmount(0);
+    setSelectedPaymentMethod("");
+  };
+  // const handleDeleteAll = () => {
+  //   if (activeField === "sellerCode") {
+  //     setSellerCode("");
+  //   } else if (activeField === "code") {
+  //     setCode("");
+  //   }
+  // };
+  const handleClearSalesData = () => {
+    clearSalesData();
+  };
+  const handleAmountMethod = () => {
+    // Implement the logic for handleAmountMethod
   };
 
   const [openCategoria, setOpenCategoria] = useState(false);
@@ -122,11 +177,6 @@ const BoxGestionCaja = () => {
   };
   const handleCloseCategoria = () => {
     setOpenCategoria(false);
-  };
-
-  const handleNavigationChange = (event, newValue) => {
-    console.log(`Button ${newValue} clicked`);
-    setValue(newValue);
   };
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -139,7 +189,7 @@ const BoxGestionCaja = () => {
     setSellerCode("");
     setInputValue("");
     setChange(0);
-
+    setSelectedAmount(0);
     // Close the dialog
     setOpenDialog(false);
   };
@@ -177,10 +227,9 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            onClick={() => handleNavigationChange(null, 0)}
+            onClick={handleClearSalesData}
           >
-            {/* <ReceiptLongIcon /> */}
-            <Typography variant="h7">Borrar</Typography>
+            <Typography variant="h7">Borrar Ventas</Typography>
           </Button>
         </Grid>
         <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
@@ -195,7 +244,7 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            onClick={() => handleNavigationChange(null, 1)}
+            onClick={() => handleNavigationChange(null, 3)}
           >
             {/* <EditIcon /> */}
             <Typography variant="h7">Buscar</Typography>
@@ -420,6 +469,7 @@ const BoxGestionCaja = () => {
           </Button>
         </Grid>
       </Grid>
+
       <Dialog
         sx={{ width: "1300px" }}
         open={openCategoria}
@@ -435,9 +485,6 @@ const BoxGestionCaja = () => {
         onClose={handleCloseDialog}
       >
         <DialogContent sx={{ width: "100%" }}>
-          <Paper elevation={5} variant="h6">
-            Total: {grandTotal}
-          </Paper>
           <Paper
             elevation={2}
             sx={{
@@ -451,209 +498,291 @@ const BoxGestionCaja = () => {
           >
             <Grid container spacing={1} sx={{ margin: "2px" }}>
               {/* Dynamic buttons */}
-              <TableContainer
-                component={Paper}
-                sx={{ maxWidth: 400, margin: "auto" }}
-              >
-                <Table size="small">
+              <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+                <Table stickyHeader size="small">
                   <TableHead>
                     <TableRow></TableRow>
                   </TableHead>
-                  <TableBody>
+                  <TableBody
+                    sx={{
+                      "& tr:nth-of-type(2n+1)": {
+                        backgroundColor: "grey.100",
+                      },
+                    }}
+                  >
                     <TableRow>
-                      <TableCell>Total:</TableCell>
-                      <TableCell> {grandTotal}</TableCell>
+                      <TableCell>Total Original</TableCell>
+                      <TableCell>{grandTotal}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Selected</TableCell>
-                      <TableCell>{sellerCode}</TableCell>
+                      <TableCell>Total a Pagar</TableCell>
+                      <TableCell>{grandTotal - totalPaidAmount}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Pagado</TableCell>
-                      <TableCell>{inputValue}</TableCell>
+                      <TableCell>Total Pagado</TableCell>
+                      <TableCell>
+                        {totalPaidAmount}
+                        {recordList.length > 0 && (
+                          <ul>
+                            {recordList.map((record, index) => (
+                              <li key={index}>
+                                {record.amount}, Pago: {record.paymentMethod}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outlined" onClick={handleConfirmClick}>
+                          agregar
+                        </Button>
+                      </TableCell>
                     </TableRow>
+
                     <TableRow>
                       <TableCell>Vuelto</TableCell>
-                      <TableCell>{change}</TableCell>
+                      <TableCell>{change > 0 ? change : ""}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
               </TableContainer>
 
-              <Grid item xs={12} lg={4}>
-                <Grid container spacing={1} sx={{ margin: "2px" }}>
-                  {Array.from({ length: 9 }, (_, i) => (
-                    <Grid item xs={4} lg={4} key={i}>
+              <Grid container spacing={2}>
+                {/* Numeric buttons */}
+                <Grid item xs={12} lg={4}>
+                  <Grid container spacing={1} sx={{ margin: "2px" }}>
+                    {Array.from({ length: 9 }, (_, i) => (
+                      <Grid item xs={4} lg={4} key={i}>
+                        <Button
+                          variant="outlined"
+                          // onClick={() => handleNumberClick(i.toString())}
+                          onClick={() =>
+                            handleTypedNumberClick((i + 1).toString())
+                          }
+                          fullWidth
+                          sx={{ height: "100%" }}
+                        >
+                          {i + 1}
+                        </Button>
+                      </Grid>
+                    ))}
+                    <Grid item xs={4} lg={4}>
                       <Button
                         variant="outlined"
-                        onClick={() => handleNumberClick(i.toString())}
+                        onClick={() => handleTypedNumberClick("0")}
                         fullWidth
                         sx={{ height: "100%" }}
                       >
-                        {i + 1}
+                        0
                       </Button>
                     </Grid>
-                  ))}
-                  <Grid item xs={4} lg={4}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("0")}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      0
-                    </Button>
-                  </Grid>
-                  <Grid item xs={4} lg={4}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("00")}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      00
-                    </Button>
-                  </Grid>
-                  <Grid item xs={4} lg={4}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("000")}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      000
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
-              {/* Fixed value buttons */}
-              <Grid item xs={12} lg={4}>
-                <Grid container spacing={1} sx={{ margin: "2px" }}>
-                  <Grid item xs={12} lg={12}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("20000")}
-                      value={20000}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      20.000
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} lg={12}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("10000")}
-                      value={10000}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      10.000
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} lg={12}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("5000")}
-                      value={5000}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      5.000
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} lg={12}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("2000")}
-                      value={2000}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      2.000
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} lg={12}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleNumberClick("1000")}
-                      value={1000}
-                      fullWidth
-                      sx={{ height: "100%" }}
-                    >
-                      1.000
-                    </Button>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12} lg={12}>
-                  <Grid
-                    container
-                    direction="row"
-                    spacing={1}
-                    sx={{ margin: "2px" }}
-                  >
-                    <Grid item xs={4} lg={12}>
+                    <Grid item xs={4} lg={4}>
                       <Button
                         variant="outlined"
-                        onClick={() => handleNumberClick("Efectivo")}
-                        value={1}
+                        onClick={() => handleNumberClick("00")}
                         fullWidth
                         sx={{ height: "100%" }}
+                      >
+                        00
+                      </Button>
+                    </Grid>
+                    <Grid item xs={4} lg={4}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("000")}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        000
+                      </Button>
+                      <Grid item xs={4} lg={4}>
+                        <Button
+                          variant="outlined"
+                          onClick={handleDeleteOne}
+                          fullWidth
+                          sx={{ height: "100%" }}
+                        >
+                          Borrar
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                {/* Fixed value buttons */}
+                <Grid item xs={12} lg={4}>
+                  <Grid container spacing={1} sx={{ margin: "2px" }}>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("20000")}
+                        value={20000}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        20.000
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("10000")}
+                        value={10000}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        10.000
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("5000")}
+                        value={5000}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        5.000
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("2000")}
+                        value={2000}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        2.000
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("1000")}
+                        value={1000}
+                        fullWidth
+                        sx={{ height: "100%" }}
+                      >
+                        1.000
+                      </Button>
+                    </Grid>
+
+                    {/* ... */}
+                  </Grid>
+                </Grid>
+
+                {/* Payment method buttons */}
+                <Grid item xs={12} lg={4}>
+                  <Grid container spacing={1} sx={{ margin: "2px" }}>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handlePaymentMethodClick("Efectivo")}
+                        value={1}
+                        fullWidth
+                        sx={{
+                          height: "60px",
+                          width: "100%",
+                          // Resalta el botón si está seleccionado
+                          backgroundColor:
+                            selectedPaymentMethod === "Efectivo"
+                              ? "lightGreen"
+                              : "",
+                        }}
                       >
                         Efectivo
                       </Button>
                     </Grid>
-                    <Grid item xs={4} lg={12}>
+                    <Grid item xs={12} lg={12}>
                       <Button
                         variant="outlined"
-                        onClick={() => handleNumberClick("Tarjeta")}
+                        onClick={() =>
+                          handlePaymentMethodClick("Tarjeta Debito")
+                        }
                         value={2}
                         fullWidth
-                        sx={{ height: "100%" }}
+                        sx={{ height: "60px", width: "100%" }}
                       >
-                        Tarjeta
+                        Debito
                       </Button>
                     </Grid>
-                    <Grid item xs={4} lg={12}>
+                    <Grid item xs={12} lg={12}>
                       <Button
                         variant="outlined"
-                        onClick={() => handleNumberClick("Cuenta corriente")}
+                        onClick={() =>
+                          handlePaymentMethodClick("Tarjeta Credito")
+                        }
+                        value={2}
+                        fullWidth
+                        sx={{ height: "60px", width: "100%" }}
+                      >
+                        Crédito
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() =>
+                          handlePaymentMethodClick("Cuenta corriente")
+                        }
                         value={3}
                         fullWidth
-                        sx={{ height: "100%" }}
+                        sx={{ height: "60px", width: "100%" }}
                       >
                         Cuenta Corriente
                       </Button>
                     </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleNumberClick("Transferencia")}
+                        value={3}
+                        fullWidth
+                        sx={{ height: "60px", width: "100%" }}
+                      >
+                        Transferencia
+                      </Button>
+                    </Grid>
+                    {/* Add other payment method buttons as needed */}
+                    {/* ... */}
                   </Grid>
                 </Grid>
-              </Grid>
-              <Grid
-                sx={{
-                  display: "flex",
-                  flexDirection: "rowReverse",
-                  justifyContent: "space-between",
-                }}
-                item
-                xs={5}
-                lg={12}
-              >
-                <Button
-                  sx={{ margin: "5px" }}
-                  variant="contained"
-                  color="primary"
-                  // onClick={handleEnter}
+                {/* Validation message */}
+                {validationMessage && (
+                  <Typography color="error" sx={{ marginTop: 2 }}>
+                    {validationMessage}
+                  </Typography>
+                )}
+
+                {/* Action buttons */}
+                <Grid
+                  sx={{
+                    display: "flex",
+                    flexDirection: "rowReverse",
+                    justifyContent: "space-between",
+                  }}
+                  item
+                  xs={12}
+                  lg={12}
                 >
-                  Enter
-                </Button>
-                <Button
-                  sx={{ margin: "5px", marginRight: "42px" }}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleCloseDialog}
-                >
-                  Salir
-                </Button>
+                  <Button
+                    sx={{ margin: "5px" }}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleEnterClick}
+                  >
+                    Enter
+                  </Button>
+                  <Button
+                    sx={{ margin: "5px", marginRight: "42px" }}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleCloseDialog}
+                  >
+                    Salir
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </Paper>

@@ -46,7 +46,9 @@ const BoxSumaProd = () => {
     removeFromSalesData,
     incrementQuantity,
     decrementQuantity,
-    // Other values/functions you need
+    clearSalesData,
+    salesDataTimestamp
+  
   } = useContext(SelectedOptionsContext);
 
   const [count, setCount] = useState(1);
@@ -69,9 +71,13 @@ const BoxSumaProd = () => {
       return total + calculateTotalPrice(sale.quantity, sale.precio);
     }, 0);
   };
-  // // useEffect(() => {
-  // //   setGrandTotal(calculateGrandTotal());
-  // // }, [salesData]);
+  useEffect(() => {
+    // Logic to render products based on salesData
+    // Update the renderedProducts state accordingly
+    setRenderedProducts([]);
+  }, [salesData]);
+  
+
 
  
   const handlePluSubmit = (productInfo) => {
@@ -117,93 +123,21 @@ const BoxSumaProd = () => {
       addToSalesData(productInfo, selectedQuantity);
     }
   };
+  const handleClearSalesData = () => {
+    // Clear the sales data using the context function
+    clearSalesData();
+  };
 
-  // Busqueda plu
-  // const fetchProductInfo = async () => {
-  //   try {
-  //     if (searchTerm) {
-  //       const response = await axios.get(
-  //         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
-  //       );
-  //       console.log("API Response:", response.data);
+  const [renderedProducts, setRenderedProducts] = useState([]);
+
+  useEffect(() => {
+    // Logic to render products based on salesData
+    // Update the renderedProducts state accordingly
+    // ...
+
+  }, [salesData, salesDataTimestamp]);
+
   
-  //       if (response.data.cantidadRegistros > 0) {
-  //         // If there are products, set the first one in the state
-  //         const newProductInfo = response.data.productos[0];
-  //         setProductInfo(newProductInfo);
-  //         addToSalesData(newProductInfo, selectedQuantity); // Add to sales data here
-  //       } else {
-  //         // If no products found, clear the product information
-  //         setProductInfo(null);
-  //       }
-  //     } else {
-  //       setProductInfo(null);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching product information:", error);
-  //   }
-  // };
-  
-  // useEffect(() => {
-  //   const fetchProductInfo = async () => {
-  //     try {
-  //       if (selectedOptions.selectedProduct) {
-  //         // If a product is selected, use its information
-  //         setProductInfo(selectedOptions.selectedProduct);
-  //       } else if (searchTerm) {
-  //         // If no product is selected, use the search term
-  //         const response = await axios.get(
-  //           `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
-  //         );
-  //         console.log("API Response:", response.data);
-
-  //         if (response.data.cantidadRegistros > 0) {
-  //           // If there are products, set the first one in the state
-  //           const newProductInfo = response.data.productos[0];
-  //           setProductInfo(newProductInfo);
-  //           // Remove the addToSalesData if you don't want to add this product to sales data immediately
-  //         } else {
-  //           // If no products found, clear the product information
-  //           setProductInfo(null);
-  //         }
-  //       } else {
-  //         setProductInfo(null);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching product information:", error);
-  //     }
-  //   };
-
-  //   fetchProductInfo();
-  // }, [searchTerm, selectedOptions.selectedProduct]);
-  // useEffect(() => {
-  //   const fetchProductInfo = async () => {
-  //     try {
-  //       if (searchTerm) {
-  //         const response = await axios.get(
-  //           `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTerm}`
-  //         );
-  //         console.log("API Response:", response.data);
-
-  //         if (response.data.cantidadRegistros > 0) {
-  //           // If there are products, set the first one in the state
-  //           const newProductInfo = response.data.productos[0];
-  //           setProductInfo(newProductInfo);
-  //           // Remove the addToSalesData if you don't want to add this product to sales data immediately
-  //         } else {
-  //           // If no products found, clear the product information
-  //           setProductInfo(null);
-  //         }
-  //       } else {
-  //         setProductInfo(null);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching product information:", error);
-  //     }
-  //   };
-
-  //   fetchProductInfo();
-  // }, [searchTerm]);
 
   const handlePluButtonClick = () => {
     // Open the PLU dialog when the PLU button is clicked
@@ -228,41 +162,7 @@ const BoxSumaProd = () => {
       <Grid container spacing={1}>
         <Grid item xs={12} lg={12}>
           {/* Main Sales Display */}
-          <Paper
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              padding: "21px",
-              margin: "5px",
-            }}
-            elevation={21}
-            className="sales-display"
-          >
-            Cantidad:{count} - Plu:
-            {searchTerm}- Código:{searchTerm}-Peso:{peso}
-            Producto:{" "}
-            {selectedOptions.selectedProduct &&
-              selectedOptions.selectedProduct.nombre}
-            descripcion:
-            {selectedOptions.subFamily && selectedOptions.subFamily.descripcion}
-            {productInfo && (
-              <>
-                <Typography>Nombre: {productInfo.nombre}</Typography>
-                <Typography>Categoría: {productInfo.categoria}</Typography>
-                <Typography>
-                  Subcategoría: {productInfo.subCategoria}
-                </Typography>
-                {/* Check if precioVenta exists before accessing it */}
-                {productInfo.precioVenta && (
-                  <Typography>
-                    Precio de Venta: {productInfo.precioVenta}
-                  </Typography>
-                )}
-                {/* Add more product information fields as needed */}
-              </>
-            )}
-          </Paper>
+          
         </Grid>
         <Grid item xs={4} lg={12}>
           <Paper
@@ -277,49 +177,8 @@ const BoxSumaProd = () => {
             }}
           >
             <Grid container spacing={1}>
-              <Grid item xs={3} lg={1}>
-                <div
-                  className="product-box"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-around",
-                    alignItems: "center",
-                    padding: "15px",
-                  }}
-                >
-                  <Typography>{count} </Typography>
-                </div>
-              </Grid>
-              <Grid item xs={3} lg={1}>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                  size="small"
-                >
-                  <Button
-                    sx={{}}
-                    size="small"
-                    variant="outlined"
-                    aria-label="reduce"
-                    onClick={decrementQuantity}
-                  >
-                    <RemoveIcon fontSize="small" />
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    aria-label="increase"
-                    onClick={incrementQuantity}
-                  >
-                    <AddIcon fontSize="small" />
-                  </Button>
-                </div>
-              </Grid>
-              <Grid item xs={3} lg={7}>
+             
+              <Grid item xs={3} lg={9}>
                 <div style={{ marginLeft: "10px" }} className="product-box">
                   <TextField
                     fullWidth
@@ -416,6 +275,7 @@ const BoxSumaProd = () => {
     className="sales-display"
   >
     <Typography>Total: {grandTotal}</Typography>
+   
   </Paper>
 </TableContainer>
 

@@ -20,6 +20,8 @@ export const SelectedOptionsProvider = ({ children }) => {
 
   const [salesData, setSalesData] = useState([]);
   const [grandTotal, setGrandTotal] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [salesDataTimestamp, setSalesDataTimestamp] = useState(Date.now());
   const calculateTotalPrice = (quantity, price) => {
     return quantity * price;
   };
@@ -32,6 +34,18 @@ export const SelectedOptionsProvider = ({ children }) => {
   useEffect(() => {
     setGrandTotal(calculateGrandTotal());
   }, [salesData]);
+  useEffect(() => {
+    setSalesDataTimestamp(Date.now());
+  }, [salesData, grandTotal]); // Add other dependencies as needed
+  useEffect(() => {
+    // Do additional actions if needed after salesData is cleared
+    // This block of code will run after the state is updated
+    // ...
+  
+    // Example: Log a message
+    console.log("Sales data cleared!");
+  
+  }, [salesData]); 
 
   const addToSalesData = (product, quantity) => {
     const newSale = {
@@ -49,7 +63,30 @@ export const SelectedOptionsProvider = ({ children }) => {
       return updatedSalesData;
     });
   };
-  
+  const clearSalesData = () => {
+    
+    setSalesData([]);
+    setGrandTotal(0);
+    // Update the timestamp to trigger a re-render
+    setTimeout(() => {
+      // Update the timestamp to trigger a re-render
+      setSalesDataTimestamp(Date.now());
+    }, 400);
+  };
+  const [selectedButtons, setSelectedButtons] = useState([]);
+
+const handleNumberClick = (value) => {
+  // Existing code...
+
+  // Add the selected button and its amount to the state
+  setSelectedButtons([...selectedButtons, { value, amount: payment }]);
+};
+
+// Function to calculate the total amount from selected buttons
+const calculateTotalAmount = () => {
+  return selectedButtons.reduce((total, button) => total + button.amount, 0);
+};
+
   
 
   
@@ -109,6 +146,10 @@ export const SelectedOptionsProvider = ({ children }) => {
         removeFromSalesData,
         incrementQuantity,
         decrementQuantity,
+        clearSalesData,
+        products,
+        setProducts,
+        salesDataTimestamp
       }}
     >
       {children}
