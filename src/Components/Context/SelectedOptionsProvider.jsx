@@ -15,6 +15,8 @@ export const SelectedOptionsProvider = ({ children }) => {
     subfamily: null,
     selectedProduct: null,
   });
+  const [productInfo, setProductInfo] = useState(/* initial value */);
+  const [selectedQuantity, setSelectedQuantity] = useState(/* initial value */);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -54,6 +56,7 @@ export const SelectedOptionsProvider = ({ children }) => {
       precio: product.precioVenta || 0,
       total: quantity * (product.precioVenta || 0),
       quantity: 1,
+      idProducto: product.idProducto,
     };
   
 
@@ -125,12 +128,42 @@ const calculateTotalAmount = () => {
     setSalesData(updatedSalesData);
   
     if (productInfo) {
-      addToSalesData(productInfo, selectedQuantity);
+      addToSalesData(productInfo, setQuantity);
     }
   };
 
   const handleQuantityChange = (event) => {
     setQuantity(parseInt(event.target.value, 10));
+  };
+
+  const suspenderVenta = async (salesData) => {
+    try {
+      // Construct the data object for the request
+      const data = {
+        usuario: 0,
+        descripcion: "string",
+        ventaSuspenderDetalle: [
+          {
+            cantidad: salesData.quantity, // Use selectedQuantity from the function parameter
+            codProducto: salesData.idProducto.toString(), // Use codProducto from productInfo
+          },
+        ],
+      };
+  
+      // Send the request to the API
+      const response = await axios.post('https://www.easyposdev.somee.com/api/Ventas/SuspenderVenta', data);
+  
+      // Handle the API response according to your needs
+      console.log('API Response:', response.data);
+  
+      // You can also perform other actions after suspending the sale if necessary
+      clearSalesData(); // Clear sales data after suspending the sale
+      setPlu(""); // Clear the PLU code
+      setPeso(""); // Clear the weight value
+    } catch (error) {
+      // Handle errors in case the request fails
+      console.error('Error suspending sale:', error);
+    }
   };
 
   return (
@@ -149,7 +182,13 @@ const calculateTotalAmount = () => {
         clearSalesData,
         products,
         setProducts,
-        salesDataTimestamp
+        salesDataTimestamp,
+        suspenderVenta,productInfo,
+        setProductInfo,
+        selectedQuantity,
+        setSelectedQuantity,
+        calculateTotalPrice
+
       }}
     >
       {children}

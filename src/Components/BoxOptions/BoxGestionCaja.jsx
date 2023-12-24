@@ -18,14 +18,26 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  DialogActions,
+  DialogTitle,
   TableRow,
+  Snackbar,
 } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 
+import axios from "axios";
 import BotonesCategorias from "./BotonesCategorias";
 import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 
 const BoxGestionCaja = () => {
-  const { grandTotal, setGrandTotal } = useContext(SelectedOptionsContext);
+  const {
+    grandTotal,
+    setGrandTotal,
+    suspenderVenta,
+    salesData,
+    calculateTotalPrice,
+    clearSalesData,
+  } = useContext(SelectedOptionsContext);
 
   const [clickedDigits, setClickedDigits] = useState([]);
   const [totalAPagar, setTotalAPagar] = useState(0);
@@ -45,6 +57,11 @@ const BoxGestionCaja = () => {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [isOpenCategoria, setIsOpenCategoria] = useState(false);
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+  const [description, setDescription] = useState("");
+  const [openDescriptionDialog, setOpenDescriptionDialog] = useState(false);
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [selectedSaleEntry, setSelectedSaleEntry] = useState(salesData);
 
   const PAYMENT_METHODS = [
     "Efectivo",
@@ -52,26 +69,52 @@ const BoxGestionCaja = () => {
     "Cuenta corriente",
     "Transferencia",
   ];
-
+  const handleCloseSuccessSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSuccessSnackbar(false);
+  };
   const handleTypedNumberClick = (number) => {
     setActiveField(true);
     setInputDigits((prevDigits) => prevDigits + number);
 
-    // Actualiza el monto seleccionado en tiempo real
-    setTypedNumber((prevTypedNumber) => prevTypedNumber + number);
-    updateSelectedValues(parseFloat(inputDigits) || 0);
+    // Set the selected amount to the new value directly
+    const newAmount = parseFloat(inputDigits + number) || 0;
+    setSelectedAmount(newAmount);
+
+    // Update totalPaidAmount in real-time
+    setTotalPaidAmount(newAmount);
   };
+
   const handleZeroClick = () => {
     setActiveField(true);
     setInputDigits((prevDigits) => prevDigits + "0");
     updateSelectedValues("0");
   };
   const updateSelectedValues = (digit) => {
-    // Concatenar el dígito al monto seleccionado
-    setSelectedAmount((prevAmount) => prevAmount + digit);
-    setSelectedPaymentMethod(selectedPaymentMethod);
+    // Convert the concatenated string to a number
+    const newAmount = parseFloat(digit) || 0;
+
+    // Concatenate the selected amount
+    setSelectedAmount((prevAmount) => prevAmount + newAmount);
+  };
+  const handleOpenDescriptionDialog = () => {
+    if (salesData.length > 0) {
+      // Set selectedQuantity based on the existing quantity in the sales data
+      const selectedProduct = salesData[0];
+      setSelectedQuantity(selectedProduct.quantity);
+    }
+    setOpenDescriptionDialog(true);
   };
 
+  const handleCloseDescriptionDialog = () => {
+    setOpenDescriptionDialog(false);
+  };
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value);
+  };
   const handleEnterClick = () => {
     // Define the logic for handleEnterClick
     // For example, you can perform actions when the Enter button is clicked
@@ -91,6 +134,112 @@ const BoxGestionCaja = () => {
       const newAmount = Math.floor(prevAmount / 10);
       return newAmount;
     });
+  };
+
+  const handleSuspenderVentaDetalle = () => {
+    // Verificar si hay algún producto en la venta antes de suspender
+    if (salesData.length > 0) {
+      const productInfo = salesData[0]; // Obtener la información del primer producto (puedes ajustar esto según tus necesidades)
+      // Guardar la descripción en el estado antes de suspender la venta
+      setDescription(productInfo.descripcion);
+      handleOpenDescriptionDialog();
+    } else {
+      // Manejar caso donde no hay productos en la venta
+      console.warn("No hay productos en la venta para suspender.");
+    }
+  };
+  const handlePostSuspenderVentaDetalle = async () => {
+    // Check if sale data is available
+    if (salesData.length === 0) {
+      console.error("No sale details provided.");
+      return;
+    }
+
+    // Check if description is provided
+    if (!description || typeof description !== "string") {
+      console.error("Description is required and must be a string.");
+      return;
+    }
+
+    // Include ventaSuspenderCabecera field (replace 'your_value' with the actual value)
+    const ventaSuspenderCabecera = "your_value";
+
+    // Create payload with ventaSuspenderCabecera
+    const data = {
+      usuario: 0,
+      descripcion: description,
+      ventaSuspenderCabecera: ventaSuspenderCabecera, // Include this field
+      ventaSuspenderDetalle: salesData.map((sale) => ({
+        cantidad: sale.quantity,
+        codProducto: String(sale.idProducto), // Convert to string if needed
+      })),
+    };
+
+    try {
+      // Make a POST request to the API endpoint using Axios
+      console.log("posted", data);
+      const response = await axios.post(
+        "https://www.easyposdev.somee.com/api/Ventas/SuspenderVenta",
+        data
+      );
+      if (response.data.descripcion === "Venta suspendida grabada con exito.") {
+        // Handle successful response
+        console.log("Sale suspended successfully:", response.data);
+        setSuccessMessage(response.data.descripcion);
+        setOpenSuccessSnackbar(true);
+
+        // Clear sales data and close dialog
+        clearSalesData();
+        handleCloseDescriptionDialog();
+
+        // Open success dialog
+        setOpenSuccessDialog(true);
+      } else {
+        // Handle unexpected response
+        console.error("Unexpected response:", response.data);
+      }
+
+      // Handle the response...
+    } catch (error) {
+      // Handle Axios error
+      console.error("Axios error:", error);
+    }
+  };
+  const handleCloseSuccessDialog = () => {
+    setOpenSuccessDialog(false);
+  };
+
+  const handleSuspenderVenta = async () => {
+    setSelectedSaleEntry();
+
+    setOpenDescriptionDialog(true);
+    try {
+      // Verificar si hay algún producto en la venta antes de suspender
+      if (salesData.length > 0) {
+        // Assuming you want the productInfo from the first item in salesData
+        const productInfo = salesData[0];
+
+        // Assuming you want the selectedQuantity from the sum of quantities in salesData
+        const currentSelectedQuantity = salesData.reduce(
+          (total, sale) => total + sale.quantity,
+          0
+        );
+
+        // Use setProductInfo and setSelectedQuantity to update the context values
+        setProductInfo(productInfo);
+        setSelectedQuantity(currentSelectedQuantity);
+
+        // Lógica para suspender la venta
+        await suspenderVenta(productInfo, currentSelectedQuantity);
+
+        // Puedes realizar otras acciones después de suspender la venta si es necesario
+      } else {
+        console.warn("No hay productos en la venta para suspender.");
+      }
+    } catch (error) {
+      console.error("Error al suspender la venta:", error);
+      // Manejar errores en caso de que la solicitud falle
+    }
   };
 
   const handleConfirmClick = () => {
@@ -298,7 +447,7 @@ const BoxGestionCaja = () => {
                 color: "white",
               },
             }}
-            onClick={() => handleNavigationChange(null, 4)}
+            onClick={handleSuspenderVenta}
           >
             <Typography variant="h7">Suspender Venta</Typography>
           </Button>
@@ -788,6 +937,65 @@ const BoxGestionCaja = () => {
           </Paper>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog for entering description */}
+      <Dialog
+        open={openDescriptionDialog}
+        onClose={handleCloseDescriptionDialog}
+        onExited={() => setOpenSuccessSnackbar(true)}
+      >
+        <DialogTitle>Ingrese la descripción de la venta</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Descripción"
+            value={description}
+            onChange={handleDescriptionChange}
+          />
+          {salesData.map((sale, index) => {
+            console.log("Sales Entryyyyyy:", {
+              idProducto: sale.idProducto,
+              quantity: sale.quantity,
+              description: sale.descripcion,
+              price: sale.precio,
+              total: calculateTotalPrice(sale.quantity, sale.precio),
+            });
+            return (
+              <TableRow key={index}>
+                {/* ... other table cells */}
+                <TableCell>
+                  {salesData && (
+                    <div>
+                      <Typography>ID: {sale.idProducto}</Typography>
+                      <Typography>Cantidad: {sale.quantity}</Typography>
+                      {/* <Typography>Nombre: {sale.descripcion}</Typography> */}
+                      {/* ... other sale entry information */}
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDescriptionDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handlePostSuspenderVentaDetalle} color="primary">
+            Suspender Venta
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+       
+        open={openSuccessSnackbar}
+        autoHideDuration={5000}
+        onClose={handleCloseSuccessSnackbar}
+      >
+        <MuiAlert onClose={handleCloseSuccessSnackbar} severity="success">
+          {successMessage}
+        </MuiAlert>
+      </Snackbar>
     </Paper>
   );
 };

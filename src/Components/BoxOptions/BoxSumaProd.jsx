@@ -47,7 +47,8 @@ const BoxSumaProd = () => {
     incrementQuantity,
     decrementQuantity,
     clearSalesData,
-    salesDataTimestamp
+    salesDataTimestamp,
+    suspenderVenta
   
   } = useContext(SelectedOptionsContext);
 
@@ -59,7 +60,10 @@ const BoxSumaProd = () => {
   const [plu, setPlu] = useState("");
   const [peso, setPeso] = useState("");
   const [open, setOpen] = useState(false);
+  
   // const [grandTotal, setGrandTotal] = useState(0);
+
+  
 
   const [openPeso, setOpenPeso] = useState(false);
 
@@ -76,12 +80,19 @@ const BoxSumaProd = () => {
     // Update the renderedProducts state accordingly
     setRenderedProducts([]);
   }, [salesData]);
+
   
+  
+
+
+
 
 
  
   const handlePluSubmit = (productInfo) => {
     console.log("Product Info in handlePluSubmit:", productInfo);
+    const idProducto = productInfo.idProducto;
+
     setPlu(productInfo.idProducto); // Assuming idProducto is the product ID
     handleClose(); // Close the PLU dialog
     if (productInfo) {
@@ -232,6 +243,13 @@ const BoxSumaProd = () => {
     </TableHead>
     <TableBody  style={{ maxHeight: "300px", overflowY: "auto" }}>
       {salesData.map((sale, index) => {
+          console.log("Sales Entry:", {
+            idProducto:sale.idProducto,
+            quantity: sale.quantity,
+            description: sale.descripcion,
+            price: sale.precio,
+            total: calculateTotalPrice(sale.quantity, sale.precio),
+          });
         return (
           <TableRow key={index}>
             <TableCell>
@@ -305,6 +323,7 @@ const BoxSumaProd = () => {
             />
           </DialogContent>
         </Dialog>
+         
       </Grid>
     </Paper>
   );
