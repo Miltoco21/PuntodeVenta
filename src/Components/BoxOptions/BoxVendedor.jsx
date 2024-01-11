@@ -7,16 +7,7 @@ import {
   Grid,
   Box,
   Typography,
-  TextField,
-  IconButton,
-  Menu,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
+ 
 } from "@mui/material";
 
 const BoxVendedor = () => {

@@ -2,57 +2,50 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 import React from "react";
-
 import CssBaseline from "@mui/material/CssBaseline";
+import { Grid, Container } from "@mui/material";
 
-import { Grid } from "@mui/material";
-
-
-import BoxVendedor from "../Components/BoxOptions/BoxVendedor";
 import BoxDatosCaja from "../Components/BoxOptions/BoxDatosCaja";
 import BoxGestionCaja from "../Components/BoxOptions/BoxGestionCaja";
-import BoxBotonesSecundarios from "../Components/BoxOptions/BoxBotonesSecundarios";
+
 import BoxSumaProd from "../Components/BoxOptions/BoxSumaProd";
-
-import Navbar from '../Components/Navbar/Navbar';
-
-
+import Navbar from "../Components/Navbar/Navbar";
 
 const Home = () => {
   return (
     <>
-      <>
-        <CssBaseline />
-
-        <Grid container spacing={1}>
-         
-          <Grid item xs={12}sx={{ height:"66px" }}>
-            <Navbar  />
+      <CssBaseline />
+      <Container>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Navbar />
           </Grid>
 
           {/* Main Content */}
-          <Grid sx={{ marginTop: "6px" }} item xs={12}>
+          <Grid item xs={12}>
             <Grid container spacing={2}>
-              <Grid item xs={6} xl={1}>
-                <Grid sx={{ display: "flex" }}>
-                 {/* /////codigo vendedor //// */}
-                  <BoxDatosCaja /> {/* /////codigo caja boleta //// */}
-                </Grid>
+              {/* BoxDatosCaja */}
+              <Grid item xs={12} sm={12} md={6}lg={6} style={{ position: "relative" }}>
+                <BoxDatosCaja />
+                {/* BoxSumaProd with absolute positioning */}
+                <BoxSumaProd
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                  }}
+                />
               </Grid>
-              <Grid item xs={6}>
-                <BoxGestionCaja /> {/* /////botones gestion caja //// */}
+
+              {/* BoxGestionCaja */}
+              <Grid item xs={12}  sm={12} md={6}>
+                <BoxGestionCaja />
               </Grid>
-              {/* /////Half //// */}
-              <Grid  item xs={6} >
-                {/* <BoxBotonesSecundarios/> */}
-                <BoxSumaProd /> {/* /////pantalla suma //// */}
-                
-              </Grid>
-              
             </Grid>
           </Grid>
         </Grid>
-      </>
+      </Container>
     </>
   );
 };

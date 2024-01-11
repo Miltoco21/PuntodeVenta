@@ -1,10 +1,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+
 import React, { useState } from "react";
 import { Button, TextField, Grid, Container, Paper } from "@mui/material";
 import axios from "axios";
-const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
+
+const TecladoPLU = ({ onPluSubmit, plu, onClose }) => {
   const [sellerCode, setSellerCode] = useState("");
 
   const [activeField, setActiveField] = useState("sellerCode");
@@ -16,24 +18,18 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
   const handleNumberClick = (number) => {
     if (activeField === "sellerCode") {
       setSellerCode(sellerCode + number);
-    } else if (activeField === "code") {
-      setCode(code + number);
     }
   };
 
   const handleDeleteOne = () => {
     if (activeField === "sellerCode") {
       setSellerCode(sellerCode.slice(0, -1));
-    } else if (activeField === "code") {
-      setCode(code.slice(0, -1));
     }
   };
 
   const handleDeleteAll = () => {
     if (activeField === "sellerCode") {
       setSellerCode("");
-    } else if (activeField === "code") {
-      setCode("");
     }
   };
 
@@ -43,10 +39,13 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
       const response = await axios.get(
         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${sellerCode}`
       );
+
       console.log("API Response:", response.data);
+
       // Assuming the response contains product information
       const productInfo = response.data.productos[0];
-  
+      console.log(productInfo);
+
       if (productInfo) {
         // Pass the product information to the parent component or perform further actions
         onPluSubmit(productInfo);
@@ -60,20 +59,18 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
       console.error("Error fetching product information:", error);
     }
   };
-  
-  
-  const handleClose = ()=>{
-    onClose(false)
-  }
+
+  const handleClose = () => {
+    onClose(false);
+  };
 
   return (
     <Container>
-      <Grid container>
-        <Grid item xs={6}>
-          <Paper elevation={22} style={{ height: "300px", width: "380px",marginLeft:"-20px"}}>
-            <Grid container spacing={1}
-            sx={{margin:"2px"}}>
-              <Grid item xs={12} lg={11}>
+      <Grid container justifyContent="center">
+        <Grid item xs={12} sm={12} md={4} lg={12}>
+          <Paper elevation={22} style={{ height: "300px", width: "107%" }}>
+            <Grid container justifyContent="center" spacing={1}>
+              <Grid item xs={12} md={11}lg={11}>
                 <TextField
                   label="Ingresa Plu "
                   variant="outlined"
@@ -82,19 +79,18 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
                   onFocus={() => handleFieldFocus("sellerCode")}
                 />
               </Grid>
-              {/* <Grid item xs={12}>
-                <TextField
-                  label="Código"
-                  variant="outlined"
-                  fullWidth
-                  value={code}
-                  onFocus={() => handleFieldFocus("code")}
-                />
-               
-              </Grid> */}
-
               {Array.from({ length: 10 }, (_, i) => (
-                <Grid item xs={3} lg={3} key={i}>
+                <Grid container justifyContent="center" item xs={3} lg={3} key={i}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => handleNumberClick((9 - i).toString())}
+                  >
+                    {9 - i}
+                  </Button>
+                </Grid>
+              ))}
+              {/* {Array.from({ length: 10 }, (_, i) => (
+                <Grid item xs={3} lg={3} key={i} >
                   <Button
                     variant="outlined"
                     onClick={() => handleNumberClick(i.toString())}
@@ -102,28 +98,42 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
                     {i}
                   </Button>
                 </Grid>
-              ))}
+              ))} */}
 
               <Grid item xs={3} lg={3}>
-                <Grid
-                sx={{display:"flex"}}>
-                  
-                  <Button variant="outlined"
-                  size="small" onClick={handleDeleteOne}>
+                <Grid sx={{ display: "flex" }}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleDeleteOne}
+                  >
                     Borrar
                   </Button>
                 </Grid>
               </Grid>
               <Grid item xs={3} lg={3}>
-                <Grid >
-                  <Button sx={{marginLeft:"-10px"}} size="small" variant="outlined" onClick={handleDeleteAll}>
+                <Grid>
+                  <Button
+                    sx={{ marginLeft: "-10px" }}
+                    size="small"
+                    variant="outlined"
+                    onClick={handleDeleteAll}
+                  >
                     Limpiar
                   </Button>
                 </Grid>
               </Grid>
-              <Grid  sx={{display:"flex", flexDirection: "rowReverse",justifyContent:"space-between"}}item xs={3} lg={3}>
+              <Grid
+                sx={{
+                  display: "flex",
+                  flexDirection: "row-reverse",
+                  justifyContent: "space-between",
+                }}
+                item
+                xs={12}
+              >
                 <Button
-                 sx={{margin:"5px"}}
+                  sx={{ margin: "5px" }}
                   variant="contained"
                   color="primary"
                   onClick={handleEnter}
@@ -131,12 +141,12 @@ const TecladoPLU = ({onPluSubmit,plu,onClose}) => {
                   Enter
                 </Button>
                 <Button
-                sx={{margin:"5px"}}
+                  sx={{ margin: "5px" }}
                   variant="contained"
                   color="primary"
                   onClick={handleClose}
                 >
-                 Salir
+                  Salir
                 </Button>
               </Grid>
             </Grid>

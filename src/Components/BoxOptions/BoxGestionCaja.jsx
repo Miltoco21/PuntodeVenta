@@ -16,6 +16,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  Autocomplete,
   TableContainer,
   TableHead,
   DialogActions,
@@ -23,12 +24,17 @@ import {
   TableRow,
   Snackbar,
 } from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+
 import MuiAlert from "@mui/material/Alert";
 
 import axios from "axios";
 import BotonesCategorias from "./BotonesCategorias";
 import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
-
+import BoxRecuperarVenta from "./BoxRecuperarVenta";
+import BoxDevolucion from "./BoxDevolucion";
 const BoxGestionCaja = () => {
   const {
     grandTotal,
@@ -37,6 +43,7 @@ const BoxGestionCaja = () => {
     salesData,
     calculateTotalPrice,
     clearSalesData,
+    addToSalesData,
   } = useContext(SelectedOptionsContext);
 
   const [clickedDigits, setClickedDigits] = useState([]);
@@ -59,9 +66,105 @@ const BoxGestionCaja = () => {
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
   const [description, setDescription] = useState("");
   const [openDescriptionDialog, setOpenDescriptionDialog] = useState(false);
+  const [openRecoveryDialog, setOpenRecoveryDialog] = useState(false);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openDevolucionDialog, setOpenDevolucionDialog] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedSaleEntry, setSelectedSaleEntry] = useState(salesData);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [data, setData] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedId, setSelecteddId] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [detallesVenta, setDetallesVenta] = useState([]);
+  const [selectedCabecera, setSelectedCabecera] = useState(null);
+  const [expandedAccordion, setExpandedAccordion] = useState(null);
+  const [productoData, setProductoData] = useState([]);
+
+  useEffect(() => {
+    fetchData();
+    fetchDataProducts();
+  }, []);
+
+  const fetchDataProducts = () => {
+    axios
+      .get("https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos")
+      .then((response) => {
+        setProducts(response.data.productos);
+
+        console.log("prod:", response.data.productos);
+      })
+
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+  const fetchData = async () => {
+    try {
+      const ventaSuspenderResponse = await axios.get(
+        "https://www.easyposdev.somee.com/api/Ventas/GetAllSuspenderVenta"
+      );
+
+      const productsResponse = await axios.get(
+        "https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos"
+      );
+
+      const ventaSuspenderCabeceras =
+        ventaSuspenderResponse.data.ventaSuspenderCabeceras;
+      const productos = productsResponse.data.productos;
+
+      // Map ventaSuspenderCabeceras and include product details
+      const enhancedData = ventaSuspenderCabeceras.map((cabecera) => {
+        const enhancedDetalle = cabecera.ventaSuspenderDetalle.map(
+          (detalle) => {
+            const matchingProduct = productos.find(
+              (product) => product.idProducto === detalle.idProducto
+            );
+
+            return {
+              ...detalle,
+              productDetails: matchingProduct || null,
+            };
+          }
+        );
+
+        return {
+          ...cabecera,
+          ventaSuspenderDetalle: enhancedDetalle,
+        };
+      });
+
+      setData(enhancedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleButtonRecuperarVenta = () => {
+    console.log("handleButtonRecuperarVenta is called");
+    fetchData();
+    fetchDataProducts();
+    setOpenRecoveryDialog(true);
+  };
+
+  const handleButtonClick = (cabeceraId) => {
+    setSelectedCabecera(cabeceraId);
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+  };
+
+  const handleSearchInputChange = (event, newValue) => {
+    setSearchTerm(newValue);
+  };
 
   const PAYMENT_METHODS = [
     "Efectivo",
@@ -75,6 +178,7 @@ const BoxGestionCaja = () => {
     }
     setOpenSuccessSnackbar(false);
   };
+
   const handleTypedNumberClick = (number) => {
     setActiveField(true);
     setInputDigits((prevDigits) => prevDigits + number);
@@ -110,6 +214,9 @@ const BoxGestionCaja = () => {
 
   const handleCloseDescriptionDialog = () => {
     setOpenDescriptionDialog(false);
+  };
+  const handleCloseRecoveryDialog = () => {
+    setOpenRecoveryDialog(false);
   };
 
   const handleDescriptionChange = (event) => {
@@ -151,7 +258,7 @@ const BoxGestionCaja = () => {
   const handlePostSuspenderVentaDetalle = async () => {
     // Check if sale data is available
     if (salesData.length === 0) {
-      console.error("No sale details provided.");
+      console.error("No se proporcionaron detalles de la venta.");
       return;
     }
 
@@ -162,7 +269,7 @@ const BoxGestionCaja = () => {
     }
 
     // Include ventaSuspenderCabecera field (replace 'your_value' with the actual value)
-    const ventaSuspenderCabecera = "your_value";
+    const ventaSuspenderCabecera = [];
 
     // Create payload with ventaSuspenderCabecera
     const data = {
@@ -171,7 +278,7 @@ const BoxGestionCaja = () => {
       ventaSuspenderCabecera: ventaSuspenderCabecera, // Include this field
       ventaSuspenderDetalle: salesData.map((sale) => ({
         cantidad: sale.quantity,
-        codProducto: String(sale.idProducto), // Convert to string if needed
+        CodProducto: String(sale.idProducto), // Convert to string if needed
       })),
     };
 
@@ -219,7 +326,6 @@ const BoxGestionCaja = () => {
         // Assuming you want the productInfo from the first item in salesData
         const productInfo = salesData[0];
 
-        // Assuming you want the selectedQuantity from the sum of quantities in salesData
         const currentSelectedQuantity = salesData.reduce(
           (total, sale) => total + sale.quantity,
           0
@@ -295,9 +401,6 @@ const BoxGestionCaja = () => {
     setChange(0);
   };
 
-  useEffect(() => {
-    console.log(change);
-  }, [change]);
   const handleDeleteAll = () => {
     // Borrar todos los números escritos cuando se hace clic en "Borrar Todo"
     setTypedNumber("");
@@ -319,7 +422,13 @@ const BoxGestionCaja = () => {
   const handleAmountMethod = () => {
     // Implement the logic for handleAmountMethod
   };
-
+  const handleOpenDevolucion = () => {
+    setOpenDevolucionDialog(true);
+  };
+  const handleCloseDevolucion = () => {
+    setOpenDevolucionDialog(false);
+  };
+  
   const [openCategoria, setOpenCategoria] = useState(false);
   const handleOpenCategoria = () => {
     setOpenCategoria(true);
@@ -351,8 +460,8 @@ const BoxGestionCaja = () => {
         flexDirection: "column",
         maxWidth: "1000px",
         margin: "0 auto",
-        marginBottom: "10px",
-        marginLeft: "5px",
+        // marginBottom: "10px",
+        // marginLeft: "5px",
 
         justifyContent: "space-around",
         alignItems: "center",
@@ -361,55 +470,57 @@ const BoxGestionCaja = () => {
       <Grid
         container
         spacing={1}
-        sx={{ marginLeft: "5px", marginTop: "5px", marginRight: "-9px" }}
+        sx={{ marginLeft: "5px", marginTop: "5px", }}
       >
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={3} >
           <Button
             elevation={8}
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+               
+              }, margin:"5px"
             }}
             onClick={handleClearSalesData}
           >
             <Typography variant="h7">Borrar Ventas</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
               },
+              margin:"5px"
             }}
-            onClick={() => handleNavigationChange(null, 3)}
+            onClick={() => clearSalesData(null, 3)}
           >
             {/* <EditIcon /> */}
             <Typography variant="h7">Buscar</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
             onClick={handleOpenCategoria}
           >
@@ -417,87 +528,70 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">Familias</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
-            }}
-            onClick={() => handleNavigationChange(null, 3)}
-          >
-            {/* <PowerSettingsNewIcon /> */}
-            <Typography variant="h7">Quitar</Typography>
-          </Button>
-        </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
-          <Button
-            sx={{
-              width: "100px",
-              height: "100px",
-              backgroundColor: "lightSalmon",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "coral",
-                color: "white",
-              },
+              }, margin:"5px"
             }}
             onClick={handleSuspenderVenta}
           >
             <Typography variant="h7">Suspender Venta</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
-            onClick={() => handleNavigationChange(null, 5)}
+            onClick={handleButtonRecuperarVenta}
           >
             <Typography variant="h7">Recuperar Venta</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
-            onClick={() => handleNavigationChange(null, 6)}
+            onClick={handleOpenDevolucion}
           >
             {/* <CoffeeIcon /> */}
             <Typography variant="h7">Devolución</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
             onClick={() => handleNavigationChange(null, 7)}
           >
@@ -505,17 +599,17 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">Ingresos</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
             onClick={() => handleNavigationChange(null, 8)}
           >
@@ -523,17 +617,17 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">Retiros</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
             onClick={() => handleNavigationChange(null, 9)}
           >
@@ -541,24 +635,24 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">Otros</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        <Grid item xs={3} sm={4} md={4} lg={3} xl={2}>
           <Button
             sx={{
-              width: "100px",
-              height: "100px",
+              width: "90%",
+              height: "80px",
               backgroundColor: "lightSalmon",
               color: "white",
               "&:hover": {
                 backgroundColor: "coral",
                 color: "white",
-              },
+              }, margin:"5px"
             }}
             onClick={() => handleNavigationChange(null, 10)}
           >
             <Typography variant="h7">Búsqueda Rápida</Typography>
           </Button>
         </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
+        {/* <Grid item xs={6} sm={6} md={4} lg={3} xl={2}>
           <Button
             sx={{
               width: "100px",
@@ -574,48 +668,49 @@ const BoxGestionCaja = () => {
           >
             <Typography variant="h7">otro </Typography>
           </Button>
-        </Grid>
-        <Grid item xs={6} sm={6} md={4} lg={8} xl={2}>
-          <Grid
+        </Grid> */}
+        <Grid item xs={12} sm={10} md={10} lg={12} xl={10}>
+          <Grid 
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
             }}
           >
-            <p>TOTAL:$ </p>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                height: "50px",
-                width: "350px",
+                marginBottom: "10px",
                 borderRadius: "8px",
-                border: "2px solid #ccc",
+                border: "4px solid #ccc",
                 justifyContent: "center",
                 padding: "5px",
               }}
             >
-              <span>{grandTotal}</span>
+              <p>
+                TOTAL:$<span>{grandTotal}</span>{" "}
+              </p>
+              <Button
+                sx={{
+                  marginBottom: "10px",
+                  width: "200px",
+                  height: "60px",
+                  backgroundColor: "green",
+                  color: "whitesmoke",
+                  "&:hover": {
+                    backgroundColor: "red",
+                    color: "white",
+                  },
+                }}
+                onClick={handleOpenDialog}
+                // onClick={() => handleNavigationChange(null, 12)}
+              >
+                <Typography variant="h7">Pagar</Typography>
+              </Button>
             </Box>
           </Grid>
-          <Button
-            sx={{
-              marginBottom: "10px",
-              width: "200px",
-              height: "60px",
-              backgroundColor: "green",
-              color: "whitesmoke",
-              "&:hover": {
-                backgroundColor: "red",
-                color: "white",
-              },
-            }}
-            onClick={handleOpenDialog}
-            // onClick={() => handleNavigationChange(null, 12)}
-          >
-            <Typography variant="h7">Pagar</Typography>
-          </Button>
+          <Grid item xs={5} sm={2}></Grid>
         </Grid>
       </Grid>
 
@@ -955,10 +1050,10 @@ const BoxGestionCaja = () => {
           {salesData.map((sale, index) => {
             console.log("Sales Entryyyyyy:", {
               idProducto: sale.idProducto,
-              quantity: sale.quantity,
+              cantidad: sale.quantity,
               description: sale.descripcion,
               price: sale.precio,
-              total: calculateTotalPrice(sale.quantity, sale.precio),
+              total: sale.quantity * sale.precio,
             });
             return (
               <TableRow key={index}>
@@ -987,7 +1082,6 @@ const BoxGestionCaja = () => {
         </DialogActions>
       </Dialog>
       <Snackbar
-       
         open={openSuccessSnackbar}
         autoHideDuration={5000}
         onClose={handleCloseSuccessSnackbar}
@@ -996,6 +1090,30 @@ const BoxGestionCaja = () => {
           {successMessage}
         </MuiAlert>
       </Snackbar>
+
+      <Dialog open={openRecoveryDialog} onClose={handleCloseRecoveryDialog}>
+        <DialogTitle>Seleccionar Venta</DialogTitle>
+        <DialogContent >
+          
+          <BoxRecuperarVenta onClose={handleCloseRecoveryDialog} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseRecoveryDialog}>Cancelar</Button>
+          <Button onClick={handleButtonRecuperarVenta}>Seleccionar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDevolucionDialog} onClose={handleCloseDevolucion}>
+        <DialogTitle>Devolución</DialogTitle>
+        <DialogContent >
+          
+          <BoxDevolucion onClose={handleCloseDevolucion} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDevolucion}>Cancelar</Button>
+          <Button onClick={handleButtonRecuperarVenta}>Seleccionar</Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };

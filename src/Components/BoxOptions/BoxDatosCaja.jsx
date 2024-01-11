@@ -1,28 +1,29 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-
 import React, { useState, useEffect } from "react";
 import {
   Paper,
-  Grid,
   Box,
   Typography,
-  TextField,
-  IconButton,
-  Menu,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
+  Grid,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 const BoxVendedor = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const vendedores = [
-    { codigo: "cod1", nombre: "Nombre ", caja: "Caja 1", boleta: "Boleta 1", operacion: "Operacion 1" }]
-    
+    {
+      codigo: "cod1",
+      nombre: "Nombre ",
+      caja: "Caja 1",
+      boleta: "Boleta 1",
+      operacion: "Operación 1",
+    },
+  ];
+
   const [vendedor, setVendedor] = useState([]);
 
   useEffect(() => {
@@ -45,141 +46,31 @@ const BoxVendedor = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            width: "450px",
-            height: "135px",
-            marginBottom: "10px",
-            padding: "10px",
-            justifyContent: "center",
-            alignItems: "center",
-
+            width: "100%",
+            maxWidth: "100%",
+            margin: "auto",
+            marginBottom: "20px",
+            padding: "20px",
           }}
         >
           <Box>
-            <Grid
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop:"2px",
-                marginBottom:"-27px"
-               
-                
-              }}
-            >
-              <p
-              style={{marginLeft:"-20px",marginRight:"11px",}}>Vendedor</p>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "30px",
-                  width: "150px",
-                  borderRadius: "8px",
-                  border: "2px solid #ccc",
-                  justifyContent: "center",
-                  padding: "10px",
-                }}
-              >
-                <span>{vend.codigo}</span>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "30px",
-                  width: "150px",
-                  borderRadius: "8px",
-                  border: "2px solid #ccc",
-                  justifyContent: "center",
-                  padding: "5px",
-                  marginLeft:"7px"
-                  
-                }}
-              >
-                <span
-                >{vend.nombre}</span>
-              </Box>
-            </Grid>
-            <Grid
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop:"2px",
-                marginBottom:"-27px"
-               
-                
-              }}
-            >
-              <p
-              style={{marginLeft:"-20px"}}>Nº Caja:</p>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "30px",
-                  width: "150px",
-                  borderRadius: "8px",
-                  border: "2px solid #ccc",
-                  justifyContent: "center",
-                  padding: "5px",
-                }}
-              >
-                <span>{vend.caja}</span>
-              </Box>
-            </Grid>
-            <Grid
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop:"2px",
-                marginBottom:"-27px"
-                
-              }}
-            >
-              <p style={{marginLeft:"-20px"}}>Nº Última Boleta:</p>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "30px",
-                  width: "150px",
-                  borderRadius: "8px",
-                  border: "2px solid #ccc",
-                  justifyContent: "center",
-                  padding: "5px",
-                }}
-              >
-                <span>{vend.boleta}</span>
-              </Box>
-            </Grid>
-            <Grid
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop:"2px",
-                
-                
-                
-              }}
-            >
-              <p style={{marginLeft:"-20px"}}>Nº Última Operación:</p>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "30px",
-                  width: "150px",
-                  borderRadius: "8px",
-                  border: "2px solid #ccc",
-                  justifyContent: "center",
-                  padding: "5px",
-                }}
-              >
-                <span>{vend.operacion}</span>
-              </Box>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={6} sm={6} md={6} lg={6}>
+                <InfoBox title="Vendedor" value={vend.nombre} />
+              </Grid>
+              <Grid item xs={3} sm={3}md={3} lg={3} sx={{ height: "7%" }}>
+                <InfoBox title="Código" value={vend.codigo} />
+              </Grid>
+
+              <Grid item xs={3} sm={3} md={3} lg={3} sx={{ height: "7%" }}>
+                <InfoBox title="Nº Caja" value={vend.caja} />
+              </Grid>
+              <Grid item xs={6} sm={6}md={6} lg={6} sx={{ height: "7%" }}>
+                <InfoBox title="Nº Última Boleta" value={vend.boleta} />
+              </Grid>
+              <Grid item xs={6} sm={6} md={6} lg={6} sx={{ height: "7%" }}>
+                <InfoBox title="Nº Última Operación" value={vend.operacion} />
+              </Grid>
             </Grid>
           </Box>
         </Paper>
@@ -187,5 +78,26 @@ const BoxVendedor = () => {
     </div>
   );
 };
+
+const InfoBox = ({ title, value }) => (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      textAlign: "center",
+      height: "50px",
+      borderRadius: "8px",
+      border: "2px solid #ccc",
+      justifyContent: "center",
+      padding: "6px",
+    }}
+  >
+    <Typography variant="subtitle1" gutterBottom>
+      {title}
+    </Typography>
+    <Typography variant="body1">{value}</Typography>
+  </Box>
+);
 
 export default BoxVendedor;

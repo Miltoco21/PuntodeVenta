@@ -17,9 +17,10 @@ export const SelectedOptionsProvider = ({ children }) => {
   });
   const [productInfo, setProductInfo] = useState(/* initial value */);
   const [selectedQuantity, setSelectedQuantity] = useState(/* initial value */);
-
+ 
+  const[description,setDescription]=useState(/* initial value */);
   const [quantity, setQuantity] = useState(1);
-
+ 
   const [salesData, setSalesData] = useState([]);
   const [grandTotal, setGrandTotal] = useState(0);
   const [products, setProducts] = useState([]);
@@ -48,24 +49,38 @@ export const SelectedOptionsProvider = ({ children }) => {
     console.log("Sales data cleared!");
   
   }, [salesData]); 
-
-  const addToSalesData = (product, quantity) => {
+ const addToSalesData = (product, quantity) => {
+    const precioVenta = product.precioVenta || 0;
     const newSale = {
+      
       cantidad: quantity,
       descripcion: product.nombre,
-      precio: product.precioVenta || 0,
-      total: quantity * (product.precioVenta || 0),
-      quantity: 1,
+      precio: precioVenta,
+      total: quantity * precioVenta,
       idProducto: product.idProducto,
     };
-  
 
     setSalesData((prevSalesData) => {
       const updatedSalesData = [...prevSalesData, newSale];
-
       return updatedSalesData;
     });
   };
+  // const addToSalesData = (product, quantity) => {
+  //   const precioVenta = product.precioVenta || "";
+  //   const newSale = {
+  //     cantidad: quantity,
+  //     descripcion: product.nombre,
+  //     precio: precioVenta,
+  //     total: quantity * precioVenta,
+  //     quantity: 1,
+  //     idProducto: product.idProducto,
+  //   };
+  
+  //   setSalesData((prevSalesData) => {
+  //     const updatedSalesData = [...prevSalesData, newSale];
+  //     return updatedSalesData;
+  //   });
+  // };
   const clearSalesData = () => {
     
     setSalesData([]);
@@ -187,7 +202,9 @@ const calculateTotalAmount = () => {
         setProductInfo,
         selectedQuantity,
         setSelectedQuantity,
-        calculateTotalPrice
+        calculateTotalPrice,    description,
+        setDescription,
+    
 
       }}
     >
