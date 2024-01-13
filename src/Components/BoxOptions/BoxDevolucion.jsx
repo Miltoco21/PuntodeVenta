@@ -161,6 +161,106 @@ const BoxDevolucion = () => {
             </Grid>
           </Grid>
         </TabPanel>
+        <TabPanel value={value} index={1}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={10} md={8}>
+              <TextField
+                label="Ingresa numero Ticket "
+                variant="outlined"
+                fullWidth
+                value={ticketCode}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2} md={4}>
+              <Button variant="outlined" size="large" fullWidth>
+                Buscar
+              </Button>
+            </Grid>
+
+            {/* Include NumericKeypad for Boleta */}
+            {numbers.map((number) => (
+              <Grid item xs={4} sm={3} lg={2} key={number}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => handleNumberClick(number)}
+                >
+                  {number}
+                </Button>
+              </Grid>
+            ))}
+            <Grid item xs={4} sm={3} lg={2}>
+              <Button
+                variant="outlined"
+                size="small"
+                fullWidth
+                onClick={handleDeleteOne}
+              >
+                Borrar
+              </Button>
+            </Grid>
+            <Grid item xs={4} sm={3} lg={2}>
+              <Button
+                variant="outlined"
+                size="small"
+                fullWidth
+                onClick={handleDeleteAll}
+              >
+                Limpiar
+              </Button>
+            </Grid>
+          </Grid>
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={10} md={8}>
+              <TextField
+                label="Ingresa numero Ticket ModoAVION "
+                variant="outlined"
+                fullWidth
+                value={modoAvionCode}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2} md={4}>
+              <Button variant="outlined" size="large" fullWidth>
+                Buscar
+              </Button>
+            </Grid>
+
+            {/* Include NumericKeypad for Boleta */}
+            {numbers.map((number) => (
+              <Grid item xs={4} sm={3} lg={2} key={number}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => handleNumberClick(number)}
+                >
+                  {number}
+                </Button>
+              </Grid>
+            ))}
+            <Grid item xs={4} sm={3} lg={2}>
+              <Button
+                variant="outlined"
+                size="small"
+                fullWidth
+                onClick={handleDeleteOne}
+              >
+                Borrar
+              </Button>
+            </Grid>
+            <Grid item xs={4} sm={3} lg={2}>
+              <Button
+                variant="outlined"
+                size="small"
+                fullWidth
+                onClick={handleDeleteAll}
+              >
+                Limpiar
+              </Button>
+            </Grid>
+          </Grid>
+        </TabPanel>
 
         {/* Similar adjustments for other tabs */}
         {/* ... */}

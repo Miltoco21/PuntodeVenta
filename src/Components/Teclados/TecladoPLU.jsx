@@ -67,10 +67,10 @@ const TecladoPLU = ({ onPluSubmit, plu, onClose }) => {
   return (
     <Container>
       <Grid container justifyContent="center">
-        <Grid item xs={12} sm={12} md={4} lg={12}>
+        <Grid item xs={12} sm={12} md={12} lg={12}>
           <Paper elevation={22} style={{ height: "300px", width: "107%" }}>
             <Grid container justifyContent="center" spacing={1}>
-              <Grid item xs={12} md={11}lg={11}>
+              <Grid item xs={12} sm={11}md={11}lg={11}>
                 <TextField
                   label="Ingresa Plu "
                   variant="outlined"
