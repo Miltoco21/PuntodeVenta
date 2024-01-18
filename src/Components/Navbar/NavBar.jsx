@@ -58,7 +58,7 @@ const NavBar = () => {
   };
 
   return (
-    <Paper elevation={3} style={{ backgroundColor: "blue", padding: "6px" }}>
+    <Paper elevation={3} style={{ backgroundColor: "green", padding: "6px" }}>
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={3} sm={2} md={2}>
           <Typography variant="h4" color="white">
