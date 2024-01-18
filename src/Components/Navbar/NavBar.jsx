@@ -62,7 +62,7 @@ const NavBar = () => {
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={3} sm={2} md={2}>
           <Typography variant="h4" color="white">
-            EasyPOS
+            EasyPOSS
           </Typography>
         </Grid>
         <Grid item xs={12} sm={9} md={9}>
