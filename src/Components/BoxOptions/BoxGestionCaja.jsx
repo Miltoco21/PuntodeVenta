@@ -35,6 +35,7 @@ import BotonesCategorias from "./BotonesCategorias";
 import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 import BoxRecuperarVenta from "./BoxRecuperarVenta";
 import BoxDevolucion from "./BoxDevolucion";
+import BoxIngreso from "./BoxIngreso";
 const BoxGestionCaja = () => {
   const {
     grandTotal,
@@ -67,6 +68,7 @@ const BoxGestionCaja = () => {
   const [description, setDescription] = useState("");
   const [openDescriptionDialog, setOpenDescriptionDialog] = useState(false);
   const [openRecoveryDialog, setOpenRecoveryDialog] = useState(false);
+  const [openIngresoDialog, setOpenIngresoDialog] = useState(false);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openDevolucionDialog, setOpenDevolucionDialog] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -428,6 +430,12 @@ const BoxGestionCaja = () => {
   const handleCloseDevolucion = () => {
     setOpenDevolucionDialog(false);
   };
+  const handleOpenIngreso = ()=>{
+    setOpenIngresoDialog(true);
+  };
+  const handleCloseIngreso = ()=>{
+    setOpenIngresoDialog(false);
+  };
   
   const [openCategoria, setOpenCategoria] = useState(false);
   const handleOpenCategoria = () => {
@@ -460,17 +468,13 @@ const BoxGestionCaja = () => {
         flexDirection: "column",
         maxWidth: "1000px",
         margin: "0 auto",
-        // marginBottom: "10px",
-        // marginLeft: "5px",
-
-        justifyContent: "space-around",
         alignItems: "center",
       }}
     >
       <Grid
         container
-        spacing={1}
-        sx={{ marginLeft: "5px", marginTop: "5px", }}
+        spacing={2}
+        // sx={{ marginLeft: "5px", marginTop: "5px", }}
       >
         <Grid item xs={3} sm={4} md={4} lg={3} xl={3} >
           <Button
@@ -593,7 +597,7 @@ const BoxGestionCaja = () => {
                 color: "white",
               }, margin:"5px"
             }}
-            onClick={() => handleNavigationChange(null, 7)}
+            onClick={handleOpenIngreso}
           >
             {/* <CoffeeIcon /> */}
             <Typography variant="h7">Ingresos</Typography>
@@ -669,23 +673,24 @@ const BoxGestionCaja = () => {
             <Typography variant="h7">otro </Typography>
           </Button>
         </Grid> */}
-        <Grid item xs={12} sm={10} md={10} lg={12} xl={10}>
+        <Grid item xs={12} sm={10} md={12} lg={12} xl={10}>
           <Grid 
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              width:"100%"
             }}
           >
             <Box
+              
               sx={{
-                display: "flex",
-                flexDirection: "column",
-                marginBottom: "10px",
-                borderRadius: "8px",
+             
+               borderRadius: "8px",
                 border: "4px solid #ccc",
-                justifyContent: "center",
-                padding: "5px",
+                width:"90%",
+              //   justifyContent: "center",
+               margin: "5px",
               }}
             >
               <p>
@@ -693,7 +698,8 @@ const BoxGestionCaja = () => {
               </p>
               <Button
                 sx={{
-                  marginBottom: "10px",
+                  
+                  margin: "7px",
                   width: "200px",
                   height: "60px",
                   backgroundColor: "green",
@@ -706,7 +712,24 @@ const BoxGestionCaja = () => {
                 onClick={handleOpenDialog}
                 // onClick={() => handleNavigationChange(null, 12)}
               >
-                <Typography variant="h7">Pagar</Typography>
+                <Typography variant="h7">Pagar Boleta</Typography>
+              </Button>
+              <Button
+                sx={{
+                  margin: "7px",
+                  width: "200px",
+                  height: "60px",
+                  backgroundColor: "green",
+                  color: "whitesmoke",
+                  "&:hover": {
+                    backgroundColor: "red",
+                    color: "white",
+                  },
+                }}
+                onClick={handleOpenDialog}
+                // onClick={() => handleNavigationChange(null, 12)}
+              >
+                <Typography variant="h7">Pagar Factura</Typography>
               </Button>
             </Box>
           </Grid>
@@ -1111,6 +1134,17 @@ const BoxGestionCaja = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDevolucion}>Cancelar</Button>
+          <Button onClick={handleButtonRecuperarVenta}>Seleccionar</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openIngresoDialog} onClose={handleCloseIngreso}>
+        <DialogTitle>Ingresos</DialogTitle>
+        <DialogContent >
+          
+          <BoxIngreso onClose={handleCloseIngreso} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseIngreso}>Cancelar</Button>
           <Button onClick={handleButtonRecuperarVenta}>Seleccionar</Button>
         </DialogActions>
       </Dialog>
